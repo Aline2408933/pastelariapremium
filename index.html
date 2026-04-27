@@ -70,6 +70,32 @@ box-shadow:0 5px 15px rgba(0,0,0,0.2);padding:10px;display:none;
 background:#25d366;color:#fff;border:none;padding:15px;width:100%;border-radius:30px;
 }
 
+.extra-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+.extra-ctrl {
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.extra-ctrl button {
+    background: var(--amarelo);
+    border:none;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.qtd-extra {
+    min-width:20px;
+    text-align:center;
+}
+
 /* MODAL */
 #modal {
 display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
@@ -77,7 +103,14 @@ align-items:center;justify-content:center;
 }
 
 .modal-box {
-background:#fff;width:90%;max-width:400px;border-radius:10px;padding:15px;
+background:#fff;
+width:90%;
+max-width:400px;
+border-radius:10px;
+padding:15px;
+
+max-height:80vh;
+overflow-y:auto;
 }
 
 /* ZOOM */
@@ -119,12 +152,17 @@ justify-content:center;align-items:center;
 
 <div id="modal">
 <div class="modal-box">
+<div style="display:flex;align-items:center;gap:10px;">
+<button onclick="fecharModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">⬅️</button>
 <h3 id="modalTitulo"></h3>
+</div>
 <div id="modalExtras"></div>
 <div id="modalSabores"></div>
 <textarea id="modalObs" placeholder="Observação" style="width:100%;margin-top:10px;"></textarea>
 <br><br>
-<button onclick="confirmarItem()">Adicionar</button>
+<div style="position:sticky;bottom:0;background:#fff;padding-top:10px;">
+    <button onclick="confirmarItem()" style="width:100%;">Adicionar</button>
+</div>
 </div>
 </div>
 
@@ -150,6 +188,8 @@ const adicionaisCrepes=[["Tomate",2],["Alface",2],["Provolone",5],["Calabresa",3
 
 let categoriaAtual="Pastéis Tradicionais";
 let carrinhoItens=[];
+let extrasSelecionados = {};
+let itemAtual;
 
 /* ABAS */
 function renderAbas(){
@@ -181,16 +221,37 @@ modalTitulo.innerText=nome;
 modalExtras.innerHTML="";
 modalSabores.innerHTML="";
 
-/* adicionais */
+extrasSelecionados = {};
+
+/* PASTÉIS */
 if(categoriaAtual.includes("Pastéis")){
-modalExtras.innerHTML="<b>Adicionais:</b><br>"+adicionaisPasteis.map(a=>`<label><input type="checkbox" value="${a[0]}" data-preco="${a[1]}">${a[0]} (+R$ ${a[1]})</label><br>`).join('');
+modalExtras.innerHTML = "<b>Adicionais:</b><br>" + adicionaisPasteis.map(a => `
+<div class="extra-item">
+<span>${a[0]} (+R$ ${a[1]})</span>
+<div class="extra-ctrl">
+<button onclick="alterarExtra(this,-1)" data-nome="${a[0]}" data-preco="${a[1]}">➖</button>
+<span class="qtd-extra">0</span>
+<button onclick="alterarExtra(this,1)" data-nome="${a[0]}" data-preco="${a[1]}">➕</button>
+</div>
+</div>
+`).join('');
 }
 
+/* CREPES */
 if(categoriaAtual==="Crepe Francês"){
-modalExtras.innerHTML="<b>Adicionais:</b><br>"+adicionaisCrepes.map(a=>`<label><input type="checkbox" value="${a[0]}" data-preco="${a[1]}">${a[0]} (+R$ ${a[1]})</label><br>`).join('');
+modalExtras.innerHTML = "<b>Adicionais:</b><br>" + adicionaisCrepes.map(a => `
+<div class="extra-item">
+<span>${a[0]} (+R$ ${a[1]})</span>
+<div class="extra-ctrl">
+<button onclick="alterarExtra(this,-1)" data-nome="${a[0]}" data-preco="${a[1]}">➖</button>
+<span class="qtd-extra">0</span>
+<button onclick="alterarExtra(this,1)" data-nome="${a[0]}" data-preco="${a[1]}">➕</button>
+</div>
+</div>
+`).join('');
 }
 
-/* suco */
+/* SUCO */
 if(nome.toLowerCase().includes("suco")){
 modalSabores.innerHTML=`<b>Sabor:</b><br>
 <label><input type="radio" name="sabor" value="Laranja">Laranja</label><br>
@@ -200,16 +261,56 @@ modalSabores.innerHTML=`<b>Sabor:</b><br>
 itemAtual=item;
 }
 
+function fecharModal(){
+    modal.style.display = "none";
+    modalObs.value = "";
+}
+
+function alterarExtra(btn, delta){
+    let nome = btn.dataset.nome;
+    let span = btn.parentElement.querySelector(".qtd-extra");
+
+    if(!extrasSelecionados[nome]){
+        extrasSelecionados[nome] = 0;
+    }
+
+    extrasSelecionados[nome] += delta;
+
+    if(extrasSelecionados[nome] < 0){
+        extrasSelecionados[nome] = 0;
+    }
+
+    span.innerText = extrasSelecionados[nome];
+}
+
 /* CONFIRMAR */
 function confirmarItem(){
 let nome=itemAtual.querySelector("b").innerText;
 let preco=parseFloat(itemAtual.querySelector(".preco").innerText.replace("R$",""));
 
-let extras=[], valorExtras=0;
-document.querySelectorAll("#modalExtras input:checked").forEach(i=>{
-extras.push(i.value);
-valorExtras+=parseFloat(i.dataset.preco);
-});
+let extras=[];
+let valorExtras=0;
+
+let listaExtras = [];
+
+if(categoriaAtual.includes("Pastéis")){
+    listaExtras = adicionaisPasteis;
+}
+
+if(categoriaAtual === "Crepe Francês"){
+    listaExtras = adicionaisCrepes;
+}
+
+for(let nomeExtra in extrasSelecionados){
+let qtd = extrasSelecionados[nomeExtra];
+
+if(qtd > 0){
+extras.push(`${nomeExtra} x${qtd}`);
+
+let precoExtra = listaExtras.find(a=>a[0]===nomeExtra)?.[1] || 0;
+valorExtras += precoExtra * qtd;
+}
+}
 
 let saborSel=document.querySelector("#modalSabores input:checked");
 let sabor=saborSel?saborSel.value:"";
