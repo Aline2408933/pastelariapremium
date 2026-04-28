@@ -7,116 +7,349 @@
 
 <style>
 :root {
-    --verde:#20c997;
-    --verde2:#159d7a;
-    --amarelo:#ffc107;
+    --verde: #20c997;
+    --verde2: #159d7a;
+    --amarelo: #ffc107;
+    --fundo: #f5fffb;
+    --texto: #1f2933;
+    --borda: #d9efe8;
 }
 
-body {margin:0;font-family:Arial;background:#f5fffb;}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--fundo);
+    color: var(--texto);
+}
 
 header {
     background: var(--verde);
-    color:#fff;
-    text-align:center;
-    padding:20px;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
 }
 
 .container {
-    max-width:600px;
-    margin:auto;
-    padding:15px;
-    padding-bottom:170px;
+    max-width: 600px;
+    margin: auto;
+    padding: 15px;
+    padding-bottom: 170px;
+}
+
+.box,
+.item,
+.modal-box {
+    background: #fff;
+    border-radius: 8px;
 }
 
 .box {
-    background:#fff;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
+    padding: 12px;
+    margin-bottom: 15px;
 }
 
-.box input {
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
+.box input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    font: inherit;
 }
 
-/* ABAS */
-#abas {display:flex;overflow-x:auto;gap:5px;margin-bottom:10px;}
-.aba {padding:10px;background:#e0f7f1;border-radius:20px;cursor:pointer;font-size:13px;}
-.aba.ativa {background:var(--verde);color:#fff;}
+#abas {
+    display: flex;
+    overflow-x: auto;
+    gap: 5px;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+}
 
-/* ITENS */
-.item {background:#fff;margin-top:8px;padding:10px;border-radius:8px;}
-.preco {color:var(--verde2);}
+.aba {
+    padding: 10px;
+    background: #e0f7f1;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+}
 
-.ctrl {display:flex;align-items:center;margin-top:6px;}
-.ctrl button {background:var(--amarelo);border:none;padding:5px 10px;}
-.ctrl input {width:40px;text-align:center;}
+.aba.ativa {
+    background: var(--verde);
+    color: #fff;
+}
 
-/* IMAGEM */
-.img-prod {width:70px;height:70px;border-radius:8px;cursor:pointer;}
+.item {
+    margin-top: 8px;
+    padding: 10px;
+}
 
-/* CARRINHO */
+.item-linha {
+    display: flex;
+    gap: 10px;
+}
+
+.preco {
+    color: var(--verde2);
+    font-weight: bold;
+}
+
+.ctrl {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.ctrl button,
+.extra-ctrl button,
+.btn-add,
+.btn-remover {
+    border: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.ctrl button,
+.extra-ctrl button,
+.btn-add {
+    background: var(--amarelo);
+}
+
+.btn-add {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.img-prod {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    cursor: pointer;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 #carrinho {
-position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-background:#fff;width:90%;max-width:400px;border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,0.2);padding:10px;display:none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70%;
+    background: #fff;
+    border-radius: 15px 15px 0 0;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    display: none;
+    overflow-y: auto;
+    z-index: 999;
 }
 
-/* FOOTER */
-.footer {position:fixed;bottom:0;width:100%;background:#fff;padding:10px;}
+.carrinho-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.fechar-btn {
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.carrinho-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borda);
+}
+
+.carrinho-item:last-child {
+    border-bottom: none;
+}
+
+.carrinho-item strong,
+.carrinho-item span {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.btn-remover {
+    background: #ffe4e4;
+    color: #b42318;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+}
+
+#totalCarrinho {
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.footer {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+}
+
 .footer button {
-background:#25d366;color:#fff;border:none;padding:15px;width:100%;border-radius:30px;
+    background: #25d366;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    width: 100%;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .extra-item {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
 .extra-ctrl {
-    display:flex;
-    align-items:center;
-    gap:5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .extra-ctrl button {
-    background: var(--amarelo);
-    border:none;
-    padding:5px 10px;
-    border-radius:5px;
-    cursor:pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
 }
 
 .qtd-extra {
-    min-width:20px;
-    text-align:center;
+    min-width: 20px;
+    text-align: center;
 }
 
-/* MODAL */
 #modal {
-display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
-align-items:center;justify-content:center;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    padding: 16px;
 }
 
 .modal-box {
-background:#fff;
-width:90%;
-max-width:400px;
-border-radius:10px;
-padding:15px;
-
-max-height:80vh;
-overflow-y:auto;
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-/* ZOOM */
+.modal-topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-qtd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 12px 0;
+    padding: 10px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+}
+
+.modal-qtd-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-qtd-ctrl button {
+    border: none;
+    background: var(--amarelo);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+}
+
+#modalQtdValor {
+    min-width: 24px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.modal-acao {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding-top: 10px;
+}
+
+.modal-acao button {
+    width: 100%;
+    border: none;
+    background: var(--verde);
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 #zoomImg {
-display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);
-justify-content:center;align-items:center;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1002;
+    padding: 20px;
+}
+
+#imgGrande {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+}
+
+#btnCarrinho {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: #25d366;
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 30px;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+#qtdCarrinho {
+    background: #fff;
+    color: #000;
+    border-radius: 50%;
+    padding: 2px 6px;
+    margin-left: 5px;
+    font-size: 12px;
 }
 </style>
 </head>
@@ -128,268 +361,440 @@ justify-content:center;align-items:center;
 </header>
 
 <div class="container">
-
 <div class="box">
 <input id="nome" placeholder="Seu nome">
 <input id="tel" placeholder="Telefone">
 <input id="endereco" placeholder="Endereço de entrega">
+<input id="distancia" type="number" min="0" step="0.1" placeholder="Distância em km">
 </div>
 
 <div id="abas"></div>
 <div id="lista"></div>
-
 </div>
 
 <div id="carrinho">
-<b>🛒 Seu pedido</b>
+<div class="carrinho-topo">
+<b>Seu pedido</b>
+<button class="fechar-btn" type="button" onclick="toggleCarrinho()">x</button>
+</div>
 <div id="listaCarrinho"></div>
 <div id="totalCarrinho"></div>
 </div>
 
 <div class="footer">
-<button onclick="enviar()">FINALIZAR PEDIDO</button>
+<button type="button" onclick="enviar()">FINALIZAR PEDIDO</button>
 </div>
 
 <div id="modal">
 <div class="modal-box">
-<div style="display:flex;align-items:center;gap:10px;">
-<button onclick="fecharModal()" style="background:none;border:none;font-size:18px;cursor:pointer;">⬅️</button>
+<div class="modal-topo">
+<button class="fechar-btn" type="button" onclick="fecharModal()">&lt;</button>
 <h3 id="modalTitulo"></h3>
+</div>
+<div class="modal-qtd">
+<span>Quantidade</span>
+<div class="modal-qtd-ctrl">
+<button type="button" onclick="alterarQtdModal(-1)">-</button>
+<span id="modalQtdValor">1</span>
+<button type="button" onclick="alterarQtdModal(1)">+</button>
+</div>
 </div>
 <div id="modalExtras"></div>
 <div id="modalSabores"></div>
-<textarea id="modalObs" placeholder="Observação" style="width:100%;margin-top:10px;"></textarea>
-<br><br>
-<div style="position:sticky;bottom:0;background:#fff;padding-top:10px;">
-    <button onclick="confirmarItem()" style="width:100%;">Adicionar</button>
+<textarea id="modalObs" placeholder="Observação"></textarea>
+<div class="modal-acao">
+<button type="button" onclick="confirmarItem()">Adicionar</button>
 </div>
 </div>
 </div>
 
 <div id="zoomImg">
-<img id="imgGrande" style="max-width:90%;max-height:90%;">
+<img id="imgGrande" alt="Imagem ampliada">
+</div>
+
+<div id="btnCarrinho" onclick="toggleCarrinho()">
+Carrinho <span id="qtdCarrinho">0</span>
 </div>
 
 <script>
-
-/* CARDÁPIO ORIGINAL (NÃO ALTERADO) */
 const cardapio = {
-"Pastéis Tradicionais":[["Carne",14, "carne.png"],["Carne com mussarela",14,"carnecommussarela.png"],["Carne com catupiry",14, "carnecomcatupiry.png"],["Carne com guariroba",16,"carnecomguariroba.png"],["Carne com milho e mussarela",15, "carnecommilhoemussarela.png"],["Carne com bacon e mussarela",17, "carnecombaconemussarela.png"],["Carne com cheddar",15, "carnecomcheddar.png"],["Carne com azeitona, tomate e cebola",17, "carnecomazeitonatomateecebola.png"],["Carne com queijo minas",16, "carneequeijominas.png"],["Carne com palmito e catupiry",17, "carnepalmitoecatupiry.png"],["Carne com mussarela e banana",17, "carnemussarelaebanana.png"],["Carne com guariroba e mussarela",18, "carneguarirobaemussarela.png"],["Carne com provolone",17, "carneeprovolone.png"],["Carne seca com banana e mussarela",20, "carnesecabananaemussarela.png"],["Carne seca com cream cheese",20, "carnesecacomcreamcheese.png"],["Carne seca com catupiry",20, "carnesecacomcatupiry.png"],["Frango",14, "frango.png"],["Frango com mussarela",14, "frangocommussarela.png"],["Frango com catupiry",14, "frangocomcatupiry.png"],["Frango com milho e mussarela",15,"frangocommilhoemussarela.png"],["Frango com guariroba",16,"frangocomguariroba.png"],["Frango com bacon e provolone",20, "frangocombaconeprovolone.png"],["Frango com bacon e catupiry",17, "frangocombaconecatupiry.png"],["Frango com queijo minas",16, "frangocomqueijominas.png"],["Frango com palmito e catupiry",17, "frangocompalmitoecatupiry.png"],["Frango com cheddar e bacon",16, "frangocomcheddarebacon.png"],["Frango com guariroba e mussarela",18, "frangocomguarirobaemussarela.png"],["Mussarela",15, "mussarela.png"],["Presunto com mussarela",14, "presuntoemussarela.png"],["Mussarela com calabresa",16],["Mussarela com bacon",18, "mussarelaebacon.png"],["Mussarela com palmito",18, "mussarelaepalmito.png"],["Queijo minas com catupiry",16, "queijominasecatupiry.png"]],
-"Pastéis Especiais":[["3 Queijos(Mussarela, cream cheese e queijo minas)",17,"tresqueijos.png"],["4 Queijos (Mussarela, cream cheese, provolone e cheddar)",19,"quatroqueijos.png"],["Pizza 1(Presunto, mussarela, tomate, calabresa e orégano)",16, "pizzaum.png"],["Pizza 2(Presunto, mussarela, tomate, calabresa frango e orégano)",18, "pizzadois.png"],["Pizza 3(Presunto, mussarela, tomate, calabresa, ovo, bacon e orégano)",20, "pizzatres.png"],["Pizza 4(Presunto, mussarela, tomate, carne seca e orégano)",22, "pizzaquatro.png"],["Pastel Goiano(Frango, milho, guariroba e creme de pequi)",20, "goiano.png"],["Pastel Cachorrão(Salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20, "cachorrão.png"],["Pastel Premium(Frango, carne,presunto, mussarela, tomate, milho, azeitona,cream cheese e bacon)",28, "premium.png"]],
-"Pastéis Doces":[["Sabor do Paraíso (Banana, mussarela e canela)",10, "sabordoparaiso.png"],["Romeu e Julieta(Goiabada com mussarela)",10, "romeuejulieta.png"],["Doce Encantado(Doce de Leite com mussarela)",12, "doceencantado.png"],["Nutella com Banana",15, "sonhodenutellacombanana.png"],["Nutella com morango",15, "sonhodenutellacommorango.png"]],
-"Batatas":[["Batata simples 400g (Bacon e Cheddar)",25,"batatasimples.png"],["Batata premium 400g (Carne seca e Cream cheese)",30, "batataespecial.png"]],
-"Crepe Francês":[["Mussarela, Catupiry e Cheddar",20],["Presunto,Mussarela, Tomete, Calabresa e Orégano",22],["Presunto,Mussarela, Tomete, Calabresa, Ovo, Bacon e Orégano",25],["Frango, Milho, Bacon, Palmito, Catupiry e Mussarela",25],["Frango, Cheddar, Bacon, Azeitona e Mussarela",25],["Carne bovina moída, Milho, Bacon, Tomate, Catupiry e Mussarela ",25],["Carne seca, Banana, Tomate e Mussarela",30],["Carne secca, Tomate e Cream cheese",30],["Costela bovina, Barbecue e Mussarela",30]],
-"Bebidas":[["Água Mineral",4],["Água com gás",5],["Refrigerante lata",7],["Refrigerante 600mL",10],["Refrigerante 1L",12],["Refrigerante 1,5L",13],["Suco 400ml",12],["Suco 500ml",15],["Suco 1L",18]]
+"Pastéis Tradicionais":[["Carne",14,"carne.png"],["Carne com mussarela",14,"carnecommussarela.png"],["Carne com catupiry",14,"carnecomcatupiry.png"],["Carne com guariroba",16,"carnecomguariroba.png"],["Carne com milho e mussarela",15,"carnecommilhoemussarela.png"],["Carne com bacon e mussarela",17,"carnecombaconemussarela.png"],["Carne com cheddar",15,"carnecomcheddar.png"],["Carne com azeitona, tomate e cebola",17,"carnecomazeitonatomateecebola.png"],["Carne com queijo minas",16,"carneequeijominas.png"],["Carne com palmito e catupiry",17,"carnepalmitoecatupiry.png"],["Carne com mussarela e banana",17,"carnemussarelaebanana.png"],["Carne com guariroba e mussarela",18,"carneguarirobaemussarela.png"],["Carne com provolone",17,"carneeprovolone.png"],["Carne seca com banana e mussarela",20,"carnesecabananaemussarela.png"],["Carne seca com cream cheese",20,"carnesecacomcreamcheese.png"],["Carne seca com catupiry",20,"carnesecacomcatupiry.png"],["Frango",14,"frango.png"],["Frango com mussarela",14,"frangocommussarela.png"],["Frango com catupiry",14,"frangocomcatupiry.png"],["Frango com milho e mussarela",15,"frangocommilhoemussarela.png"],["Frango com guariroba",16,"frangocomguariroba.png"],["Frango com bacon e provolone",20,"frangocombaconeprovolone.png"],["Frango com bacon e catupiry",17,"frangocombaconecatupiry.png"],["Frango com queijo minas",16,"frangocomqueijominas.png"],["Frango com palmito e catupiry",17,"frangocompalmitoecatupiry.png"],["Frango com cheddar e bacon",16,"frangocomcheddarebacon.png"],["Frango com guariroba e mussarela",18,"frangocomguarirobaemussarela.png"],["Mussarela",15,"mussarela.png"],["Presunto com mussarela",14,"presuntoemussarela.png"],["Mussarela com calabresa",16],["Mussarela com bacon",18,"mussarelaebacon.png"],["Mussarela com palmito",18,"mussarelaepalmito.png"],["Queijo minas com catupiry",16,"queijominasecatupiry.png"]],
+"Pastéis Especiais":[["3 Queijos(Mussarela, cream cheese e queijo minas)",17,"tresqueijos.png"],["4 Queijos (Mussarela, cream cheese, provolone e cheddar)",19,"quatroqueijos.png"],["Pizza 1(Presunto, mussarela, tomate, calabresa e oregano)",16,"pizzaum.png"],["Pizza 2(Presunto, mussarela, tomate, calabresa frango e oregano)",18,"pizzadois.png"],["Pizza 3(Presunto, mussarela, tomate, calabresa, ovo, bacon e oregano)",20,"pizzatres.png"],["Pizza 4(Presunto, mussarela, tomate, carne seca e oregano)",22,"pizzaquatro.png"],["Pastel Goiano(Frango, milho, guariroba e creme de pequi)",20,"goiano.png"],["Pastel Cachorrao(Salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20,"cachorrao.png"],["Pastel Premium(Frango, carne, presunto, mussarela, tomate, milho, azeitona, cream cheese e bacon)",28,"premium.png"]],
+"Pastéis Doces":[["Sabor do Paraiso (Banana, mussarela e canela)",10,"sabordoparaiso.png"],["Romeu e Julieta(Goiabada com mussarela)",10,"romeuejulieta.png"],["Doce Encantado(Doce de Leite com mussarela)",12,"doceencantado.png"],["Nutella com Banana",15,"sonhodenutellacombanana.png"],["Nutella com morango",15,"sonhodenutellacommorango.png"]],
+"Batatas":[["Batata simples 400g (Bacon e Cheddar)",25,"batatasimples.png"],["Batata premium 400g (Carne seca e Cream cheese)",30,"batataespecial.png"]],
+"Crepe Francês":[["Mussarela, Catupiry e Cheddar",20],["Presunto, Mussarela, Tomate, Calabresa e Oregano",22],["Presunto, Mussarela, Tomate, Calabresa, Ovo, Bacon e Oregano",25],["Frango, Milho, Bacon, Palmito, Catupiry e Mussarela",25],["Frango, Cheddar, Bacon, Azeitona e Mussarela",25],["Carne bovina moida, Milho, Bacon, Tomate, Catupiry e Mussarela",25],["Carne seca, Banana, Tomate e Mussarela",30],["Carne seca, Tomate e Cream cheese",30],["Costela bovina, Barbecue e Mussarela",30]],
+"Bebidas":[["Agua Mineral",4],["Agua com gas",5],["Refrigerante lata",7],["Refrigerante 600mL",10],["Refrigerante 1L",12],["Refrigerante 1,5L",13],["Suco 400ml",12],["Suco 500ml",15],["Suco 1L",18]]
 };
 
-/* ADICIONAIS (COMPLETO) */
-const adicionaisPasteis=[["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabresa",2],["Milho",2],["Palmito",3],["Pequi",4],["Guariroba",3],["Cheddar",2],["Ovo",2],["Tomate",2],["Uva passas",3],["Provolone",4],["Catupiry",2],["Cebola",2],["Cream cheese",4]];
-const adicionaisCrepes=[["Tomate",2],["Alface",2],["Provolone",5],["Calabresa",3],["Palmito",5],["Cebola",3]];
+const adicionaisPasteis = [["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabresa",2],["Milho",2],["Palmito",3],["Pequi",4],["Guariroba",3],["Cheddar",2],["Ovo",2],["Tomate",2],["Uva passas",3],["Provolone",4],["Catupiry",2],["Cebola",2],["Cream cheese",4]];
+const adicionaisCrepes = [["Tomate",2],["Alface",2],["Provolone",5],["Calabresa",3],["Palmito",5],["Cebola",3]];
 
-let categoriaAtual="Pastéis Tradicionais";
-let carrinhoItens=[];
+const abas = document.getElementById("abas");
+const lista = document.getElementById("lista");
+const carrinho = document.getElementById("carrinho");
+const listaCarrinho = document.getElementById("listaCarrinho");
+const totalCarrinho = document.getElementById("totalCarrinho");
+const qtdCarrinho = document.getElementById("qtdCarrinho");
+const footer = document.querySelector(".footer");
+const modal = document.getElementById("modal");
+const modalTitulo = document.getElementById("modalTitulo");
+const modalExtras = document.getElementById("modalExtras");
+const modalSabores = document.getElementById("modalSabores");
+const modalObs = document.getElementById("modalObs");
+const modalQtdValor = document.getElementById("modalQtdValor");
+const zoomImg = document.getElementById("zoomImg");
+const imgGrande = document.getElementById("imgGrande");
+const campoDistancia = document.getElementById("distancia");
+
+const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
+);
+
+const TAXA_ATE_3KM = 0;
+
+let categoriaAtual = "Pastéis Tradicionais";
+let carrinhoItens = [];
 let extrasSelecionados = {};
-let itemAtual;
+let itemAtual = null;
+let quantidadeAtual = 1;
 
-/* ABAS */
-function renderAbas(){
-abas.innerHTML=Object.keys(cardapio).map(cat=>`<div class="aba ${cat===categoriaAtual?'ativa':''}" onclick="trocar('${cat}')">${cat}</div>`).join('');
-}
-function trocar(cat){categoriaAtual=cat;renderAbas();renderLista();}
-
-/* LISTA */
-function renderLista(){
-lista.innerHTML=cardapio[categoriaAtual].map(p=>`
-<div class="item">
-<div style="display:flex;gap:10px;">
-<img src="${p[2] ? './IMG/' + p[2] : 'https://via.placeholder.com/80'}" class="img-prod">
-<div><b>${p[0]}</b><br><span class="preco">R$ ${p[1]}</span></div>
-</div>
-<div class="ctrl">
-<button onclick="abrirModal(this)">+</button>
-</div>
-</div>`).join('');
+function formatarPreco(valor) {
+    return valor.toFixed(2).replace(".", ",");
 }
 
-/* MODAL */
-function abrirModal(btn){
-let item=btn.closest(".item");
-let nome=item.querySelector("b").innerText;
+function obterListaExtras() {
+    if (categoriaAtual.includes("Pastéis")) {
+        return adicionaisPasteis;
+    }
 
-modal.style.display="flex";
-modalTitulo.innerText=nome;
-modalExtras.innerHTML="";
-modalSabores.innerHTML="";
+    if (categoriaAtual === "Crepe Francês") {
+        return adicionaisCrepes;
+    }
 
-extrasSelecionados = {};
-
-/* PASTÉIS */
-if(categoriaAtual.includes("Pastéis")){
-modalExtras.innerHTML = "<b>Adicionais:</b><br>" + adicionaisPasteis.map(a => `
-<div class="extra-item">
-<span>${a[0]} (+R$ ${a[1]})</span>
-<div class="extra-ctrl">
-<button onclick="alterarExtra(this,-1)" data-nome="${a[0]}" data-preco="${a[1]}">➖</button>
-<span class="qtd-extra">0</span>
-<button onclick="alterarExtra(this,1)" data-nome="${a[0]}" data-preco="${a[1]}">➕</button>
-</div>
-</div>
-`).join('');
+    return [];
 }
 
-/* CREPES */
-if(categoriaAtual==="Crepe Francês"){
-modalExtras.innerHTML = "<b>Adicionais:</b><br>" + adicionaisCrepes.map(a => `
-<div class="extra-item">
-<span>${a[0]} (+R$ ${a[1]})</span>
-<div class="extra-ctrl">
-<button onclick="alterarExtra(this,-1)" data-nome="${a[0]}" data-preco="${a[1]}">➖</button>
-<span class="qtd-extra">0</span>
-<button onclick="alterarExtra(this,1)" data-nome="${a[0]}" data-preco="${a[1]}">➕</button>
-</div>
-</div>
-`).join('');
+function renderAbas() {
+    abas.innerHTML = Object.keys(cardapio).map((cat) => `
+        <div class="aba ${cat === categoriaAtual ? "ativa" : ""}" onclick='trocar(${JSON.stringify(cat)})'>${cat}</div>
+    `).join("");
 }
 
-/* SUCO */
-if(nome.toLowerCase().includes("suco")){
-modalSabores.innerHTML=`<b>Sabor:</b><br>
-<label><input type="radio" name="sabor" value="Laranja">Laranja</label><br>
-<label><input type="radio" name="sabor" value="Maracujá">Maracujá</label>`;
+function trocar(cat) {
+    categoriaAtual = cat;
+    renderAbas();
+    renderLista();
 }
 
-itemAtual=item;
+function renderLista() {
+    lista.innerHTML = cardapio[categoriaAtual].map((produto) => {
+        const imagem = produto[2] ? `./IMG/${produto[2]}` : placeholderImagem;
+        return `
+            <div class="item">
+                <div class="item-linha">
+                    <img src="${imagem}" class="img-prod" alt="${produto[0]}" onerror="this.src='${placeholderImagem}'">
+                    <div>
+                        <b>${produto[0]}</b><br>
+                        <span class="preco">R$ ${formatarPreco(produto[1])}</span>
+                    </div>
+                </div>
+                <div class="ctrl">
+                    <button class="btn-add" type="button" onclick="abrirModal(this)">Adicionar</button>
+                </div>
+            </div>
+        `;
+    }).join("");
 }
 
-function fecharModal(){
+function abrirModal(botao) {
+    itemAtual = botao.closest(".item");
+    const nome = itemAtual.querySelector("b").innerText;
+    const listaExtras = obterListaExtras();
+
+    extrasSelecionados = {};
+    quantidadeAtual = 1;
+    modalQtdValor.innerText = quantidadeAtual;
+    modalTitulo.innerText = nome;
+    modalExtras.innerHTML = "";
+    modalSabores.innerHTML = "";
+    modalObs.value = "";
+
+    if (listaExtras.length) {
+        modalExtras.innerHTML = "<b>Adicionais:</b><br>" + listaExtras.map((extra) => `
+            <div class="extra-item">
+                <span>${extra[0]} (+R$ ${formatarPreco(extra[1])})</span>
+                <div class="extra-ctrl">
+                    <button type="button" onclick="alterarExtra(this, -1)" data-nome="${extra[0]}">-</button>
+                    <span class="qtd-extra">0</span>
+                    <button type="button" onclick="alterarExtra(this, 1)" data-nome="${extra[0]}">+</button>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    if (nome.toLowerCase().includes("suco")) {
+        modalSabores.innerHTML = `
+            <b>Sabor:</b><br>
+            <label><input type="radio" name="sabor" value="Laranja"> Laranja</label><br>
+            <label><input type="radio" name="sabor" value="Maracuja"> Maracuja</label>
+        `;
+    }
+
+    modal.style.display = "flex";
+}
+
+function fecharModal() {
     modal.style.display = "none";
     modalObs.value = "";
+    modalExtras.innerHTML = "";
+    modalSabores.innerHTML = "";
+    extrasSelecionados = {};
+    itemAtual = null;
+    quantidadeAtual = 1;
+    modalQtdValor.innerText = quantidadeAtual;
 }
 
-function alterarExtra(btn, delta){
-    let nome = btn.dataset.nome;
-    let span = btn.parentElement.querySelector(".qtd-extra");
+function alterarQtdModal(delta) {
+    quantidadeAtual += delta;
 
-    if(!extrasSelecionados[nome]){
+    if (quantidadeAtual < 1) {
+        quantidadeAtual = 1;
+    }
+
+    modalQtdValor.innerText = quantidadeAtual;
+}
+
+function alterarExtra(botao, delta) {
+    const nome = botao.dataset.nome;
+    const quantidade = botao.parentElement.querySelector(".qtd-extra");
+
+    extrasSelecionados[nome] = (extrasSelecionados[nome] || 0) + delta;
+
+    if (extrasSelecionados[nome] < 0) {
         extrasSelecionados[nome] = 0;
     }
 
-    extrasSelecionados[nome] += delta;
+    quantidade.innerText = extrasSelecionados[nome];
+}
 
-    if(extrasSelecionados[nome] < 0){
-        extrasSelecionados[nome] = 0;
+function encontrarItemExistente(novoItem) {
+    return carrinhoItens.find((item) =>
+        item.nome === novoItem.nome &&
+        item.sabor === novoItem.sabor &&
+        item.obs === novoItem.obs &&
+        item.valorExtras === novoItem.valorExtras &&
+        item.extras.join("|") === novoItem.extras.join("|")
+    );
+}
+
+function calcularSubtotalCarrinho() {
+    return carrinhoItens.reduce((total, item) => {
+        return total + ((item.preco + item.valorExtras) * item.qtd);
+    }, 0);
+}
+
+function calcularTaxaEntrega(subtotal, distancia) {
+    if (Number.isNaN(distancia) || distancia < 0) {
+        return 0;
     }
 
-    span.innerText = extrasSelecionados[nome];
+    if (distancia <= 3) {
+        return subtotal > 30 ? 0 : TAXA_ATE_3KM;
+    }
+
+    if (distancia <= 5) {
+        return 15;
+    }
+
+    if (distancia <= 8) {
+        return 22;
+    }
+
+    if (distancia <= 10) {
+        return 25;
+    }
+
+    return 25 + ((distancia - 10) * 1.5);
 }
 
-/* CONFIRMAR */
-function confirmarItem(){
-let nome=itemAtual.querySelector("b").innerText;
-let preco=parseFloat(itemAtual.querySelector(".preco").innerText.replace("R$",""));
+function confirmarItem() {
+    if (!itemAtual) {
+        return;
+    }
 
-let extras=[];
-let valorExtras=0;
+    const nome = itemAtual.querySelector("b").innerText;
+    const precoTexto = itemAtual.querySelector(".preco").innerText;
+    const preco = Number(precoTexto.replace("R$", "").replace(".", "").replace(",", ".").trim());
+    const listaExtras = obterListaExtras();
+    const extras = [];
+    let valorExtras = 0;
 
-let listaExtras = [];
+    Object.keys(extrasSelecionados).forEach((nomeExtra) => {
+        const qtd = extrasSelecionados[nomeExtra];
+        if (qtd > 0) {
+            extras.push(`${nomeExtra} x${qtd}`);
+            const precoExtra = listaExtras.find((extra) => extra[0] === nomeExtra)?.[1] || 0;
+            valorExtras += precoExtra * qtd;
+        }
+    });
 
-if(categoriaAtual.includes("Pastéis")){
-    listaExtras = adicionaisPasteis;
+    const saborSelecionado = document.querySelector("#modalSabores input:checked");
+    const sabor = saborSelecionado ? saborSelecionado.value : "";
+
+    if (nome.toLowerCase().includes("suco") && !sabor) {
+        alert("Escolha o sabor do suco.");
+        return;
+    }
+
+    const novoItem = {
+        nome,
+        preco,
+        extras,
+        sabor,
+        obs: modalObs.value.trim(),
+        valorExtras,
+        qtd: quantidadeAtual
+    };
+
+    const itemExistente = encontrarItemExistente(novoItem);
+
+    if (itemExistente) {
+        itemExistente.qtd += quantidadeAtual;
+    } else {
+        carrinhoItens.push(novoItem);
+    }
+
+    fecharModal();
+    atualizarCarrinho();
+
+    if (carrinhoItens.length > 0) {
+        carrinho.style.display = "block";
+    }
 }
 
-if(categoriaAtual === "Crepe Francês"){
-    listaExtras = adicionaisCrepes;
+function atualizarCarrinho() {
+    let subtotal = 0;
+
+    listaCarrinho.innerHTML = carrinhoItens.map((item, indice) => {
+        const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
+        subtotal += subtotalItem;
+
+        return `
+            <div class="carrinho-item">
+                <strong>${item.nome} x${item.qtd}</strong>
+                ${item.sabor ? `<span>Sabor: ${item.sabor}</span>` : ""}
+                ${item.extras.length ? `<span>Extras: ${item.extras.join(", ")}</span>` : ""}
+                ${item.obs ? `<span>Obs: ${item.obs}</span>` : ""}
+                <span>Subtotal: R$ ${formatarPreco(subtotalItem)}</span>
+                <button class="btn-remover" type="button" onclick="removerItem(${indice})">Remover</button>
+            </div>
+        `;
+    }).join("");
+
+    const distancia = Number(campoDistancia.value.replace(",", "."));
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+    const total = subtotal + taxaEntrega;
+
+    qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
+    totalCarrinho.innerHTML = `
+        <div>Subtotal: R$ ${formatarPreco(subtotal)}</div>
+        <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
+        <div>Total: R$ ${formatarPreco(total)}</div>
+    `;
+    footer.style.display = carrinhoItens.length > 0 ? "block" : "none";
+
+    if (carrinhoItens.length === 0) {
+        listaCarrinho.innerHTML = "<p>Seu carrinho está vazio.</p>";
+        totalCarrinho.innerText = "Total: R$ 0,00";
+        carrinho.style.display = "none";
+    }
 }
 
-for(let nomeExtra in extrasSelecionados){
-let qtd = extrasSelecionados[nomeExtra];
-
-if(qtd > 0){
-extras.push(`${nomeExtra} x${qtd}`);
-
-let precoExtra = listaExtras.find(a=>a[0]===nomeExtra)?.[1] || 0;
-valorExtras += precoExtra * qtd;
-}
+function removerItem(indice) {
+    carrinhoItens.splice(indice, 1);
+    atualizarCarrinho();
 }
 
-let saborSel=document.querySelector("#modalSabores input:checked");
-let sabor=saborSel?saborSel.value:"";
+function toggleCarrinho() {
+    if (!carrinhoItens.length) {
+        return;
+    }
 
-if(nome.toLowerCase().includes("suco") && !sabor){
-alert("Escolha o sabor do suco");
-return;
+    carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
-let obs=document.getElementById("modalObs").value;
+function enviar() {
+    const nome = document.getElementById("nome").value.trim();
+    const tel = document.getElementById("tel").value.trim();
+    const endereco = document.getElementById("endereco").value.trim();
+    const distancia = Number(campoDistancia.value.replace(",", "."));
 
-carrinhoItens.push({nome,preco,extras,sabor,obs,valorExtras,qtd:1});
+    if (!nome || !tel || !endereco || Number.isNaN(distancia) || distancia < 0) {
+        alert("Preencha nome, telefone, endereço e distância antes de finalizar.");
+        return;
+    }
 
-modal.style.display="none";
-modalObs.value="";
-atualizarCarrinho();
+    if (!carrinhoItens.length) {
+        alert("Adicione pelo menos um item no carrinho.");
+        return;
+    }
+
+    const subtotal = calcularSubtotalCarrinho();
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+    const total = subtotal + taxaEntrega;
+
+    let mensagem = "*PEDIDO*\n";
+    mensagem += `Cliente: ${nome}\n`;
+    mensagem += `Telefone: ${tel}\n`;
+    mensagem += `Endereço: ${endereco}\n\n`;
+    mensagem += `Distância: ${formatarPreco(distancia)} km\n\n`;
+
+    carrinhoItens.forEach((item) => {
+        const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
+
+        mensagem += `- ${item.nome} x${item.qtd}\n`;
+        if (item.sabor) {
+            mensagem += `  Sabor: ${item.sabor}\n`;
+        }
+        if (item.extras.length) {
+            mensagem += `  Extras: ${item.extras.join(", ")}\n`;
+        }
+        if (item.obs) {
+            mensagem += `  Obs: ${item.obs}\n`;
+        }
+        mensagem += `  Subtotal: R$ ${formatarPreco(subtotalItem)}\n\n`;
+    });
+
+    mensagem += `Subtotal: R$ ${formatarPreco(subtotal)}\n`;
+    mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
+    mensagem += `Total: R$ ${formatarPreco(total)}`;
+
+    const url = `https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank");
 }
 
-/* CARRINHO */
-function atualizarCarrinho(){
-let total=0;
-let html="";
+document.addEventListener("click", (evento) => {
+    if (evento.target.classList.contains("img-prod")) {
+        zoomImg.style.display = "flex";
+        imgGrande.src = evento.target.src;
+        imgGrande.alt = evento.target.alt || "Imagem do produto";
+    }
 
-carrinhoItens.forEach((item,i)=>{
-let sub=(item.preco+item.valorExtras)*item.qtd;
-total+=sub;
+    if (evento.target.id === "zoomImg") {
+        zoomImg.style.display = "none";
+        imgGrande.src = "";
+    }
 
-html+=`<div>
-${item.nome} x${item.qtd}<br>
-${item.sabor?"🥤 "+item.sabor+"<br>":""}
-${item.extras.length?"➕ "+item.extras.join(", ")+"<br>":""}
-${item.obs?"📝 "+item.obs+"<br>":""}
-<button onclick="removerItem(${i})">❌ Remover</button>
-</div><hr>`;
+    if (evento.target.id === "modal") {
+        fecharModal();
+    }
 });
-
-carrinho.style.display=total>0?"block":"none";
-listaCarrinho.innerHTML=html;
-totalCarrinho.innerText="Total: R$ "+total.toFixed(2);
-}
-
-function removerItem(i){
-carrinhoItens.splice(i,1);
-atualizarCarrinho();
-}
-
-/* ZOOM */
-document.addEventListener("click",e=>{
-if(e.target.classList.contains("img-prod")){
-zoomImg.style.display="flex";
-imgGrande.src=e.target.src;
-}
-if(e.target.id==="zoomImg"){
-zoomImg.style.display="none";
-}
-});
-
-/* ENVIAR */
-function enviar(){
-let nome=document.getElementById("nome").value;
-let tel=document.getElementById("tel").value;
-let end=document.getElementById("endereco").value;
-
-let msg=`*PEDIDO*%0A👤 ${nome}%0A📞 ${tel}%0A📍 ${end}%0A%0A`;
-
-carrinhoItens.forEach(i=>{
-msg+=`• ${i.nome} x${i.qtd}%0A`;
-if(i.sabor) msg+=`   Sabor: ${i.sabor}%0A`;
-if(i.extras.length) msg+=`   Extras: ${i.extras.join(", ")}%0A`;
-if(i.obs) msg+=`   Obs: ${i.obs}%0A`;
-});
-
-window.open(`https://wa.me/556291484278?text=${msg}`);
-}
 
 renderAbas();
 renderLista();
-
+atualizarCarrinho();
+campoDistancia.addEventListener("input", atualizarCarrinho);
 </script>
 
 </body>
-</html> 
+</html>
