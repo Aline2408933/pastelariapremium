@@ -365,7 +365,6 @@ textarea {
 <input id="nome" placeholder="Seu nome">
 <input id="tel" placeholder="Telefone">
 <input id="endereco" placeholder="Endereço de entrega">
-<input id="distancia" type="number" min="0" step="0.1" placeholder="Distância em km">
 </div>
 
 <div id="abas"></div>
@@ -450,7 +449,7 @@ const modalObs = document.getElementById("modalObs");
 const modalQtdValor = document.getElementById("modalQtdValor");
 const zoomImg = document.getElementById("zoomImg");
 const imgGrande = document.getElementById("imgGrande");
-const campoDistancia = document.getElementById("distancia");
+const ENDERECO_LOJA = "Av. Dona Maria Cardoso, Quadra 30a - Lote 8 - Jardim Luz, Aparecida de Goiânia - GO, 74915-175";
 
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
@@ -463,6 +462,7 @@ let carrinhoItens = [];
 let extrasSelecionados = {};
 let itemAtual = null;
 let quantidadeAtual = 1;
+let distanciaAtual = 0;
 
 function formatarPreco(valor) {
     return valor.toFixed(2).replace(".", ",");
@@ -719,16 +719,18 @@ function atualizarCarrinho() {
         `;
     }).join("");
 
-    const distancia = Number(campoDistancia.value.replace(",", "."));
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+    // ✅ AGORA SIM: usa subtotal correto + distanciaAtual
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
     const total = subtotal + taxaEntrega;
 
     qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
+
     totalCarrinho.innerHTML = `
         <div>Subtotal: R$ ${formatarPreco(subtotal)}</div>
         <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
         <div>Total: R$ ${formatarPreco(total)}</div>
     `;
+
     footer.style.display = carrinhoItens.length > 0 ? "block" : "none";
 
     if (carrinhoItens.length === 0) {
@@ -751,14 +753,45 @@ function toggleCarrinho() {
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
-function enviar() {
+async function calcularDistanciaAutomatica(enderecoCliente) {
+    return new Promise((resolve, reject) => {
+        const service = new google.maps.DistanceMatrixService();
+
+        service.getDistanceMatrix(
+            {
+                origins: [ENDERECO_LOJA],
+                destinations: [enderecoCliente],
+                travelMode: "DRIVING",
+                unitSystem: google.maps.UnitSystem.METRIC
+            },
+            (response, status) => {
+                if (status !== "OK") {
+                    alert("Erro ao calcular distância.");
+                    resolve(null);
+                    return;
+                }
+
+                const resultado = response.rows[0].elements[0];
+
+                if (resultado.status !== "OK") {
+                    alert("Endereço inválido.");
+                    resolve(null);
+                    return;
+                }
+
+                const distanciaKm = resultado.distance.value / 1000;
+                resolve(distanciaKm);
+            }
+        );
+    });
+}
+async function enviar() {
     const nome = document.getElementById("nome").value.trim();
     const tel = document.getElementById("tel").value.trim();
     const endereco = document.getElementById("endereco").value.trim();
-    const distancia = Number(campoDistancia.value.replace(",", "."));
 
-    if (!nome || !tel || !endereco || Number.isNaN(distancia) || distancia < 0) {
-        alert("Preencha nome, telefone, endereço e distância antes de finalizar.");
+    if (!nome || !tel || !endereco) {
+        alert("Preencha nome, telefone e endereço.");
         return;
     }
 
@@ -767,8 +800,16 @@ function enviar() {
         return;
     }
 
+    const distancia = await calcularDistanciaAutomatica(endereco);
+    distanciaAtual = distancia;
+    atualizarCarrinho();
+
+    if (distancia === null) {
+    return;
+}
+
     const subtotal = calcularSubtotalCarrinho();
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
     const total = subtotal + taxaEntrega;
 
     let mensagem = "*PEDIDO*\n";
@@ -781,15 +822,9 @@ function enviar() {
         const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
 
         mensagem += `- ${item.nome} x${item.qtd}\n`;
-        if (item.sabor) {
-            mensagem += `  Sabor: ${item.sabor}\n`;
-        }
-        if (item.extras.length) {
-            mensagem += `  Extras: ${item.extras.join(", ")}\n`;
-        }
-        if (item.obs) {
-            mensagem += `  Obs: ${item.obs}\n`;
-        }
+        if (item.sabor) mensagem += `  Sabor: ${item.sabor}\n`;
+        if (item.extras.length) mensagem += `  Extras: ${item.extras.join(", ")}\n`;
+        if (item.obs) mensagem += `  Obs: ${item.obs}\n`;
         mensagem += `  Subtotal: R$ ${formatarPreco(subtotalItem)}\n\n`;
     });
 
@@ -801,28 +836,12 @@ function enviar() {
     window.open(url, "_blank");
 }
 
-document.addEventListener("click", (evento) => {
-    if (evento.target.classList.contains("img-prod")) {
-        zoomImg.style.display = "flex";
-        imgGrande.src = evento.target.src;
-        imgGrande.alt = evento.target.alt || "Imagem do produto";
-    }
 
-    if (evento.target.id === "zoomImg") {
-        zoomImg.style.display = "none";
-        imgGrande.src = "";
-    }
-
-    if (evento.target.id === "modal") {
-        fecharModal();
-    }
-});
 
 renderAbas();
 renderLista();
 atualizarCarrinho();
-campoDistancia.addEventListener("input", atualizarCarrinho);
 </script>
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQZYBj5pGx8WqZNYKDJ4djTyQ0l9qcVik"></script>
 </body>
 </html>
