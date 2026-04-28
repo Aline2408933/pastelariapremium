@@ -428,6 +428,12 @@ const cardapio = {
 
 const adicionaisPasteis = [["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabresa",2],["Milho",2],["Palmito",3],["Pequi",4],["Guariroba",3],["Cheddar",2],["Ovo",2],["Tomate",2],["Uva passas",3],["Provolone",4],["Catupiry",2],["Cebola",2],["Cream cheese",4]];
 const adicionaisCrepes = [["Tomate",2],["Alface",2],["Provolone",5],["Calabresa",3],["Palmito",5],["Cebola",3]];
+const saboresRefri = {
+    "Refrigerante lata": ["Coca-Cola", "Coca-Cola Zero", "Guaraná"],
+    "Refrigerante 600mL": ["Coca-Cola", "Coca-Cola Zero"],
+    "Refrigerante 1L": ["Coca-Cola", "Coca-Cola Zero"],
+    "Refrigerante 1,5L": ["Guaraná Antarctica"]
+};
 
 const abas = document.getElementById("abas");
 const lista = document.getElementById("lista");
@@ -532,13 +538,35 @@ function abrirModal(botao) {
         `).join("");
     }
 
-    if (nome.toLowerCase().includes("suco")) {
-        modalSabores.innerHTML = `
-            <b>Sabor:</b><br>
-            <label><input type="radio" name="sabor" value="Laranja"> Laranja</label><br>
-            <label><input type="radio" name="sabor" value="Maracuja"> Maracuja</label>
-        `;
+   // BEBIDAS (SUCO OU REFRIGERANTE)
+modalSabores.innerHTML = "";
+
+// SUCOS
+if (nome.toLowerCase().includes("suco")) {
+    modalSabores.innerHTML = `
+        <b>Sabor:</b><br>
+        <label><input type="radio" name="sabor" value="Laranja"> Laranja</label><br>
+        <label><input type="radio" name="sabor" value="Maracuja"> Maracuja</label>
+    `;
+}
+
+// REFRIGERANTES
+else {
+    for (let tipo in saboresRefri) {
+        if (nome.includes(tipo)) {
+            modalSabores.innerHTML = `
+                <b>Escolha o refrigerante:</b><br>
+                ${saboresRefri[tipo].map(s => `
+                    <label>
+                        <input type="radio" name="sabor" value="${s}">
+                        ${s}
+                    </label><br>
+                `).join("")}
+            `;
+            break; // IMPORTANTE
+        }
     }
+}
 
     modal.style.display = "flex";
 }
@@ -641,10 +669,10 @@ function confirmarItem() {
     const saborSelecionado = document.querySelector("#modalSabores input:checked");
     const sabor = saborSelecionado ? saborSelecionado.value : "";
 
-    if (nome.toLowerCase().includes("suco") && !sabor) {
-        alert("Escolha o sabor do suco.");
-        return;
-    }
+    if ((nome.toLowerCase().includes("suco") || nome.toLowerCase().includes("refrigerante")) && !sabor) {
+    alert("Escolha o tipo da bebida.");
+    return;
+}
 
     const novoItem = {
         nome,
