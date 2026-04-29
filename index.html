@@ -432,12 +432,92 @@ Carrinho <span id="qtdCarrinho">0</span>
 
 <script>
 const cardapio = {
-"Pastéis Tradicionais":[["Carne",14,"carne.png"],["Carne com mussarela",14,"carnecommussarela.png"],["Carne com catupiry",14,"carnecomcatupiry.png"],["Carne com guariroba",16,"carnecomguariroba.png"],["Carne com milho e mussarela",15,"carnecommilhoemussarela.png"],["Carne com bacon e mussarela",17,"carnecombaconemussarela.png"],["Carne com cheddar",15,"carnecomcheddar.png"],["Carne com azeitona, tomate e cebola",17,"carnecomazeitonatomateecebola.png"],["Carne com queijo minas",16,"carneequeijominas.png"],["Carne com palmito e catupiry",17,"carnepalmitoecatupiry.png"],["Carne com mussarela e banana",17,"carnemussarelaebanana.png"],["Carne com guariroba e mussarela",18,"carneguarirobaemussarela.png"],["Carne com provolone",17,"carneeprovolone.png"],["Carne seca com banana e mussarela",20,"carnesecabananaemussarela.png"],["Carne seca com cream cheese",20,"carnesecacomcreamcheese.png"],["Carne seca com catupiry",20,"carnesecacomcatupiry.png"],["Frango",14,"frango.png"],["Frango com mussarela",14,"frangocommussarela.png"],["Frango com catupiry",14,"frangocomcatupiry.png"],["Frango com milho e mussarela",15,"frangocommilhoemussarela.png"],["Frango com guariroba",16,"frangocomguariroba.png"],["Frango com bacon e provolone",20,"frangocombaconeprovolone.png"],["Frango com bacon e catupiry",17,"frangocombaconecatupiry.png"],["Frango com queijo minas",16,"frangocomqueijominas.png"],["Frango com palmito e catupiry",17,"frangocompalmitoecatupiry.png"],["Frango com cheddar e bacon",16,"frangocomcheddarebacon.png"],["Frango com guariroba e mussarela",18,"frangocomguarirobaemussarela.png"],["Mussarela",15,"mussarela.png"],["Presunto com mussarela",14,"presuntoemussarela.png"],["Mussarela com calabresa",16, "mussarelacomcalabresa.png"],["Mussarela com bacon",18,"mussarelaebacon.png"],["Mussarela com palmito",18,"mussarelaepalmito.png"],["Queijo minas com catupiry",16,"queijominasecatupiry.png"]],
-"Pastéis Especiais":[["3 Queijos(Mussarela, cream cheese e queijo minas)",17,"tresqueijos.png"],["4 Queijos (Mussarela, cream cheese, provolone e cheddar)",19,"quatroqueijos.png"],["Pizza 1(Presunto, mussarela, tomate, calabresa e orégano)",16,"pizzaum.png"],["Pizza 2(Presunto, mussarela, tomate, calabresa, frango e orégano)",18,"pizzadois.png"],["Pizza 3(Presunto, mussarela, tomate, calabresa, ovo, bacon e orégano)",20,"pizzatres.png"],["Pizza 4(Presunto, mussarela, tomate, carne seca e orégano)",22,"pizzaquatro.png"],["Pastel Goiano(Frango, milho, guariroba e creme de pequi)",20,"goiano.png"],["Pastel Cachorrao(Salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20,"cachorrao.png"],["Pastel Premium(Frango, carne, presunto, mussarela, tomate, milho, azeitona, cream cheese e bacon)",28,"premium.png"]],
-"Pastéis Doces":[["Sabor do Paraiso (Banana, mussarela e canela)",10,"sabordoparaiso.png"],["Romeu e Julieta(Goiabada com mussarela)",10,"romeuejulieta.png"],["Doce Encantado(Doce de Leite com mussarela)",12,"doceencantado.png"],["Nutella com Banana",15,"sonhodenutellacombanana.png"],["Nutella com morango",15,"sonhodenutellacommorango.png"]],
-"Batatas":[["Batata simples 400g (Bacon e Cheddar)",25,"batatasimples.png"],["Batata premium 400g (Carne seca e Cream cheese)",30,"batataespecial.png"]],
-"Crepe Francês":[["Mussarela, Catupiry e Cheddar",20, "crepedemussarelacatupiryecheddar.png"],["Presunto, Mussarela, Tomate, Calabresa e Oregano",22, "presuntomussarelatomatecalabresaeoregano.png"],["Presunto, Mussarela, Tomate, Calabresa, Ovo, Bacon e Oregano",25, "presuntomussarelatomatecalabresaovobaconeoregano.png"],["Frango, Milho, Bacon, Palmito, Catupiry e Mussarela",25,"frangomilhobaconpalmitocatupirye mussarela.png"],["Frango, Cheddar, Bacon, Azeitona e Mussarela",25, "frangocheddarbaconazeitonaemussarela.png"],["Carne bovina moida, Milho, Bacon, Tomate, Catupiry e Mussarela",25,"carnebovinamoidamilhobacontomatecatupiryemussarela .png"],["Carne seca, Banana, Tomate e Mussarela",30,"carnesecabananafritatomateemussarela.png"],["Carne seca, Tomate e Cream cheese",30,"carnesecatomatee creamcheese .png"],["Costela bovina, Barbecue e Mussarela",30, "costelabovinabarbecueemussarela.png"]],
-"Bebidas":[["Agua Mineral",4, "água.png"],["Agua com gas",5, "aguacomgas.png"],["Refrigerante lata",7,"refrigerantelata.jpeg"],["Refrigerante 600mL",10, "refrigerante600.jpeg"],["Refrigerante 1L",12, "refrigerantes1l.jpeg"],["Refrigerante 1,5L",13, "refrigerante1,5.jpeg"],["Suco 400ml",12,"suco400.png"],["Suco 500ml",15,"suco500.png"],["Suco 1L",18, "suco1l.jpeg"]]
+"Pastéis Tradicionais":[
+["Carne",14,"carne.png"],
+["Carne com mussarela",14,"carnecommussarela.png"],
+["Carne com catupiry",14,"carnecomcatupiry.png"],
+["Carne com guariroba",16,"carnecomguariroba.png"],
+["Carne com milho e mussarela",15,"carnecommilhoemussarela.png"],
+["Carne com bacon e mussarela",17,"carnecombaconemussarela.png"],
+["Carne com cheddar",15,"carnecomcheddar.png"],
+["Carne com azeitona, tomate e cebola",17,"carnecomazeitonatomateecebola.png"],
+["Carne com queijo minas",16,"carneequeijominas.png"],
+["Carne com palmito e catupiry",17,"carnepalmitoecatupiry.png"],
+["Carne com mussarela e banana",17,"carnemussarelaebanana.png"],
+["Carne com guariroba e mussarela",18,"carneguarirobaemussarela.png"],
+["Carne com provolone",17,"carneeprovolone.png"],
+["Carne seca com banana e mussarela",20,"carnesecabananaemussarela.png"],
+["Carne seca com cream cheese",20,"carnesecacomcreamcheese.png"],
+["Carne seca com catupiry",20,"carnesecacomcatupiry.png"],
+["Frango",14,"frango.png"],
+["Frango com mussarela",14,"frangocommussarela.png"],
+["Frango com catupiry",14,"frangocomcatupiry.png"],
+["Frango com milho e mussarela",15,"frangocommilhoemussarela.png"],
+["Frango com guariroba",16,"frangocomguariroba.png"],
+["Frango com bacon e provolone",20,"frangocombaconeprovolone.png"],
+["Frango com bacon e catupiry",17,"frangocombaconecatupiry.png"],
+["Frango com queijo minas",16,"frangocomqueijominas.png"],
+["Frango com palmito e catupiry",17,"frangocompalmitoecatupiry.png"],
+["Frango com cheddar e bacon",16,"frangocomcheddarebacon.png"],
+["Frango com guariroba e mussarela",18,"frangocomguarirobaemussarela.png"],
+["Mussarela",15,"mussarela.png"],
+["Presunto com mussarela",14,"presuntoemussarela.png"],
+["Mussarela com calabresa",16,"mussarelacomcalabresa.png"],
+["Mussarela com bacon",18,"mussarelaebacon.png"],
+["Mussarela com palmito",18,"mussarelaepalmito.png"],
+["Queijo minas com catupiry",16,"queijominasecatupiry.png"]
+],
+
+"Pastéis Especiais":[
+["3 queijos (mussarela, cream cheese e queijo minas)",17,"tresqueijos.png"],
+["4 queijos (mussarela, cream cheese, provolone e cheddar)",19,"quatroqueijos.png"],
+["Pizza 1 (presunto, mussarela, tomate, calabresa e orégano)",16,"pizzaum.png"],
+["Pizza 2 (presunto, mussarela, tomate, calabresa, frango e orégano)",18,"pizzadois.png"],
+["Pizza 3 (presunto, mussarela, tomate, calabresa, ovo, bacon e orégano)",20,"pizzatres.png"],
+["Pizza 4 (presunto, mussarela, tomate, carne seca e orégano)",22,"pizzaquatro.png"],
+["Pastel goiano (frango, milho, guariroba e creme de pequi)",20,"goiano.png"],
+["Pastel cachorrão (salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20,"cachorrao.png"],
+["Pastel de pernil 1 (pernil suíno, mussarela e barbecue)",20,"pernilsuinocommussarelaebarbecue.png"],
+["Pastel de pernil 2 (pernil suíno com catupiry)",20,"pernilsuinocomcatupiry.png"],
+["Pastel premium (frango, carne, presunto, mussarela, tomate, milho, azeitona, cream cheese e bacon)",28,"premium.png"]
+],
+
+"Pastéis Doces":[
+["Sabor do paraíso (banana, mussarela e canela)",10,"sabordoparaiso.png"],
+["Romeu e Julieta (goiabada com mussarela)",10,"romeuejulieta.png"],
+["Doce encantado (doce de leite com mussarela)",12,"doceencantado.png"],
+["Nutella com banana",15,"sonhodenutellacombanana.png"],
+["Nutella com morango",15,"sonhodenutellacommorango.png"]
+],
+
+"Batatas":[
+["Batata simples 400g (bacon e cheddar)",25,"batatasimples.png"],
+["Batata premium 400g (carne seca e cream cheese)",30,"batataespecial.png"]
+],
+
+"Crepe Francês":[
+["Mussarela, catupiry e cheddar",20,"crepedemussarelacatupiryecheddar.png"],
+["Presunto, mussarela, tomate, calabresa e orégano",22,"presuntomussarelatomatecalabresaeoregano.png"],
+["Presunto, mussarela, tomate, calabresa, ovo, bacon e orégano",25,"presuntomussarelatomatecalabresaovobaconeoregano.png"],
+["Frango, milho, bacon, palmito, catupiry e mussarela",25,"frangomilhobaconpalmitocatupirye mussarela.png"],
+["Frango, cheddar, bacon, azeitona e mussarela",25,"frangocheddarbaconazeitonaemussarela.png"],
+["Carne bovina moída, milho, bacon, tomate, catupiry e mussarela",25,"carnebovinamoidamilhobacontomatecatupiryemussarela .png"],
+["Carne seca, banana, tomate e mussarela",30,"carnesecabananafritatomateemussarela.png"],
+["Carne seca, tomate e cream cheese",30,"carnesecatomatee creamcheese .png"],
+["Costela bovina, barbecue e mussarela",30,"costelabovinabarbecueemussarela.png"]
+],
+
+"Bebidas":[
+["Água mineral",4,"água.png"],
+["Água com gás",5,"aguacomgas.png"],
+["Refrigerante lata",7,"refrigerantelata.jpeg"],
+["Refrigerante 600 ml",10,"refrigerante600.jpeg"],
+["Refrigerante 1 L",12,"refrigerantes1l.jpeg"],
+["Refrigerante 1,5 L",13,"refrigerante1,5.jpeg"],
+["Suco 400 ml",12,"suco400.png"],
+["Suco 500 ml",15,"suco500.png"],
+["Suco 1 L",18,"suco1l.jpeg"]
+]
 };
 
 const adicionaisPasteis = [["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabresa",2],["Milho",2],["Palmito",3],["Pequi",4],["Guariroba",3],["Cheddar",2],["Ovo",2],["Tomate",2],["Uva passas",3],["Provolone",4],["Catupiry",2],["Cebola",2],["Cream cheese",4]];
