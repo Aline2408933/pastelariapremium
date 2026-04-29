@@ -135,6 +135,11 @@ textarea {
     flex-shrink: 0;
 }
 
+.img-prod.bebida {
+    object-fit: contain;
+    background: #f5fffb;
+}
+
 #carrinho {
     position: fixed;
     bottom: 0;
@@ -417,7 +422,7 @@ textarea {
 </div>
 </div>
 
-<div id="zoomImg">
+<div id="zoomImg" onclick="fecharZoom()">
 <img id="imgGrande" alt="Imagem ampliada">
 </div>
 
@@ -432,7 +437,7 @@ const cardapio = {
 "Pastéis Doces":[["Sabor do Paraiso (Banana, mussarela e canela)",10,"sabordoparaiso.png"],["Romeu e Julieta(Goiabada com mussarela)",10,"romeuejulieta.png"],["Doce Encantado(Doce de Leite com mussarela)",12,"doceencantado.png"],["Nutella com Banana",15,"sonhodenutellacombanana.png"],["Nutella com morango",15,"sonhodenutellacommorango.png"]],
 "Batatas":[["Batata simples 400g (Bacon e Cheddar)",25,"batatasimples.png"],["Batata premium 400g (Carne seca e Cream cheese)",30,"batataespecial.png"]],
 "Crepe Francês":[["Mussarela, Catupiry e Cheddar",20, "crepedemussarelacatupiryecheddar.png"],["Presunto, Mussarela, Tomate, Calabresa e Oregano",22, "presuntomussarelatomatecalabresaeoregano.png"],["Presunto, Mussarela, Tomate, Calabresa, Ovo, Bacon e Oregano",25, "presuntomussarelatomatecalabresaovobaconeoregano.png"],["Frango, Milho, Bacon, Palmito, Catupiry e Mussarela",25,"frangomilhobaconpalmitocatupirye mussarela.png"],["Frango, Cheddar, Bacon, Azeitona e Mussarela",25, "frangocheddarbaconazeitonaemussarela.png"],["Carne bovina moida, Milho, Bacon, Tomate, Catupiry e Mussarela",25,"carnebovinamoidamilhobacontomatecatupiryemussarela .png"],["Carne seca, Banana, Tomate e Mussarela",30,"carnesecabananafritatomateemussarela.png"],["Carne seca, Tomate e Cream cheese",30,"carnesecatomatee creamcheese .png"],["Costela bovina, Barbecue e Mussarela",30, "costelabovinabarbecueemussarela.png"]],
-"Bebidas":[["Agua Mineral",4],["Agua com gas",5],["Refrigerante lata",7,"refrigerantelata.jpeg"],["Refrigerante 600mL",10, "refrigerante600.jpeg"],["Refrigerante 1L",12, "refrigerantes1l.jpeg"],["Refrigerante 1,5L",13, "refrigerante1,5.jpeg"],["Suco 400ml",12],["Suco 500ml",15],["Suco 1L",18, "suco1l.jpeg"]]
+"Bebidas":[["Agua Mineral",4, "água.png"],["Agua com gas",5, "aguacomgas.png"],["Refrigerante lata",7,"refrigerantelata.jpeg"],["Refrigerante 600mL",10, "refrigerante600.jpeg"],["Refrigerante 1L",12, "refrigerantes1l.jpeg"],["Refrigerante 1,5L",13, "refrigerante1,5.jpeg"],["Suco 400ml",12,"suco400.png"],["Suco 500ml",15,"suco500.png"],["Suco 1L",18, "suco1l.jpeg"]]
 };
 
 const adicionaisPasteis = [["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabresa",2],["Milho",2],["Palmito",3],["Pequi",4],["Guariroba",3],["Cheddar",2],["Ovo",2],["Tomate",2],["Uva passas",3],["Provolone",4],["Catupiry",2],["Cebola",2],["Cream cheese",4]];
@@ -459,6 +464,14 @@ const modalObs = document.getElementById("modalObs");
 const modalQtdValor = document.getElementById("modalQtdValor");
 const zoomImg = document.getElementById("zoomImg");
 const imgGrande = document.getElementById("imgGrande");
+function abrirZoom(src) {
+    imgGrande.src = src;
+    zoomImg.style.display = "flex";
+}
+
+function fecharZoom() {
+    zoomImg.style.display = "none";
+}
 const ENDERECO_LOJA = "Av. Dona Maria Cardoso, Quadra 30a - Lote 8 - Jardim Luz, Aparecida de Goiânia - GO, 74915-175";
 
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
@@ -508,7 +521,9 @@ function renderLista() {
         return `
             <div class="item">
                 <div class="item-linha">
-                    <img src="${imagem}" class="img-prod" alt="${produto[0]}" onerror="this.src='${placeholderImagem}'">
+                    <img src="${imagem}" class="img-prod ${categoriaAtual === 'Bebidas' ? 'bebida' : ''}"
+onclick="abrirZoom(this.src)" 
+onerror="this.src='${placeholderImagem}'">
                     <div>
                         <b>${produto[0]}</b><br>
                         <span class="preco">R$ ${formatarPreco(produto[1])}</span>
