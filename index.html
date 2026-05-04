@@ -19,26 +19,7 @@
     box-sizing: border-box;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: var(--fundo);
-    color: var(--texto);
-}
 
-header {
-    background: #0ea37f;;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-}
-
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 15px;
-    padding-bottom: 170px;
-}
 
 .box,
 .item,
@@ -357,22 +338,54 @@ textarea {
     font-size: 12px;
 }
 
-.logo {
-    width: 110px;
-    padding: 10px;
-    background: white;
-    border-radius: 12px;
-    display: block;
-    margin: 0 auto 10px;
+/* SUBSTITUA PELO BLOCO ABAIXO */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Evita que a tela "balance" para os lados */
 }
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--fundo);
+    color: var(--texto);
+}
+
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;  
+    padding: 15px;
+    padding-bottom: 170px;
+}
+
+header {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0; /* Garante que a imagem encoste nos campos de baixo */
+    background: #f5fffb; /* Cor de fundo igual ao resto do site para suavizar */
+}
+
+.logo {
+    width: 100%;
+    max-height: 210px; /* 👈 limita a altura */
+    object-fit: cover; /* 👈 corta proporcionalmente */
+    display: block;
+}
+
+.titulo-loja {
+    display: none;  /* Garante que o texto antigo não apareça */
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-    <img src="./IMG/logo.png" alt="Logo Pastelaria" class="logo">
-    <h2>PASTELARIA PREMIUM</h2>
+    <img src="./IMG/logo.png" alt="Banner" class="logo">
 </header>
 
 <div class="container">
@@ -594,29 +607,52 @@ function trocar(cat) {
     renderAbas();
     renderLista();
 }
-
 function renderLista() {
-    lista.innerHTML = cardapio[categoriaAtual].map((produto) => {
+    let aviso = "";
+
+    // 👇 AQUI É A REGRA DOS PASTÉIS DOCES
+    if (categoriaAtual === "Pastéis Doces") {
+        aviso = `
+            <div style="
+                margin-bottom:10px;
+                padding:10px;
+                background:#fff3cd;
+                color:#856404;
+                border-radius:8px;
+                font-size:14px;
+                font-weight:bold;
+            ">
+                📏 Todos os pastéis doces possuem tamanho padrão de 15cm
+            </div>
+        `;
+    }
+
+    lista.innerHTML = aviso + cardapio[categoriaAtual].map((produto) => {
         const imagem = produto[2] ? `./IMG/${produto[2]}` : placeholderImagem;
+
         return `
             <div class="item">
                 <div class="item-linha">
-                    <img src="${imagem}" class="img-prod ${categoriaAtual === 'Bebidas' ? 'bebida' : ''}"
-onclick="abrirZoom(this.src)" 
-onerror="this.src='${placeholderImagem}'">
+                    <img src="${imagem}" 
+                         class="img-prod ${categoriaAtual === 'Bebidas' ? 'bebida' : ''}"
+                         onclick="abrirZoom(this.src)" 
+                         onerror="this.src='${placeholderImagem}'">
+
                     <div>
                         <b>${produto[0]}</b><br>
                         <span class="preco">R$ ${formatarPreco(produto[1])}</span>
                     </div>
                 </div>
+
                 <div class="ctrl">
-                    <button class="btn-add" type="button" onclick="abrirModal(this)">Adicionar</button>
+                    <button class="btn-add" type="button" onclick="abrirModal(this)">
+                        Adicionar
+                    </button>
                 </div>
             </div>
         `;
     }).join("");
 }
-
 function abrirModal(botao) {
     itemAtual = botao.closest(".item");
     const nome = itemAtual.querySelector("b").innerText;
