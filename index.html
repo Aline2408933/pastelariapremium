@@ -474,7 +474,7 @@ const cardapio = {
 ["Mussarela com calabresa",16,"mussarelacomcalabresa.png"],
 ["Mussarela com bacon",18,"mussarelaebacon.png"],
 ["Mussarela com palmito",18,"mussarelaepalmito.png"],
-["Queijo minas com catupiry",16,"queijominasecatupiry.png"]
+["Queijo minas with catupiry",16,"queijominasecatupiry.png"]
 ],
 
 "Pastéis Especiais":[
@@ -573,6 +573,7 @@ let extrasSelecionados = {};
 let itemAtual = null;
 let quantidadeAtual = 1;
 let distanciaAtual = 0;
+let taxaManual = false;
 
 function formatarPreco(valor) {
     return valor.toFixed(2).replace(".", ",");
@@ -720,7 +721,8 @@ function calcularSubtotalCarrinho() {
 }
 
 function calcularTaxaEntrega(subtotal, distancia) {
-    if (distancia === null || distancia === undefined || distancia < 0) return 0;
+    if (taxaManual) return 7; // Taxa fixa de segurança se o mapa falhar
+    if (distancia === null || distancia === undefined || distancia <= 0) return 0;
     if (distancia <= 3) return subtotal >= 30 ? 0 : 5;
     if (distancia <= 5) return 15;
     if (distancia <= 8) return 22;
@@ -780,7 +782,7 @@ function atualizarCarrinho() {
 
     totalCarrinho.innerHTML = `
         Subtotal: R$ ${formatarPreco(subtotal)}<br>
-        Taxa de entrega: ${distanciaAtual > 0 ? `R$ ${formatarPreco(taxaEntrega)}` : "Calculando..."}<br>
+        Taxa de entrega: ${taxaManual ? `R$ ${formatarPreco(taxaEntrega)} (Taxa Fixa)` : (distanciaAtual > 0 ? `R$ ${formatarPreco(taxaEntrega)}` : "Calculando...")}<br>
         <strong>Total: R$ ${formatarPreco(total)}</strong>
     `;
 
@@ -806,25 +808,30 @@ async function buscarCoordenadas(query) {
 }
 
 async function calcularDistanciaAutomatica(enderecoCliente) {
-    // 1. Limpeza do endereço (remove qd, lt, etc que confundem o mapa)
+    taxaManual = false;
+    // 1. Limpeza do endereço
     let limpo = enderecoCliente.replace(/qd\s*\d+/gi, '').replace(/lt\s*\d+/gi, '').replace(/casa\s*\d+/gi, '').trim();
     
     // 2. Tenta várias combinações de busca
     const tentativas = [
-        `${enderecoCliente}, Aparecida de Goiânia, GO, Brasil`, // Completo
-        `${limpo}, Aparecida de Goiânia, GO, Brasil`,           // Sem quadra/lote
-        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`          // Apenas bairro (último recurso)
+        `${enderecoCliente}, Aparecida de Goiânia, GO, Brasil`,
+        `${limpo}, Aparecida de Goiânia, GO, Brasil`,
+        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`,
+        `Aparecida de Goiânia, GO, Brasil`
     ];
 
     for (let query of tentativas) {
-        console.log("Tentando buscar:", query);
         const coords = await buscarCoordenadas(query);
         if (coords) {
-            return await calcularRotaComCoordenadas(coords);
+            const dist = await calcularRotaComCoordenadas(coords);
+            if (dist !== null) return dist;
         }
-        await new Promise(r => setTimeout(r, 600)); // Delay para evitar bloqueio da API
+        await new Promise(r => setTimeout(r, 500));
     }
-    return null;
+    
+    // Se tudo falhar, ativa taxa manual de segurança
+    taxaManual = true;
+    return 0;
 }
 
 async function calcularRotaComCoordenadas(dadosDestino) {
@@ -858,21 +865,15 @@ async function enviar() {
         return;
     }
 
-    // Mostra feedback visual
     const btnFinalizar = document.querySelector(".footer button");
     const textoOriginal = btnFinalizar.innerText;
-    btnFinalizar.innerText = "CALCULANDO DISTÂNCIA...";
+    btnFinalizar.innerText = "CALCULANDO...";
     btnFinalizar.disabled = true;
 
     const distancia = await calcularDistanciaAutomatica(endereco);
     
     btnFinalizar.innerText = textoOriginal;
     btnFinalizar.disabled = false;
-
-    if (distancia === null) {
-        alert("Não conseguimos localizar seu endereço no mapa. Por favor, tente digitar de forma mais simples (Ex: Rua Nome, Bairro).");
-        return;
-    }
 
     distanciaAtual = distancia;
     atualizarCarrinho();
@@ -883,7 +884,7 @@ async function enviar() {
 
     let mensagem = "*PEDIDO*\n";
     mensagem += `Cliente: ${nome}\nTelefone: ${tel}\nEndereço: ${endereco}\n`;
-    mensagem += `Distância: ${distancia.toFixed(2)} km\n\n`;
+    mensagem += taxaManual ? `Taxa: Fixa (Endereço não mapeado)\n\n` : `Distância: ${distancia.toFixed(2)} km\n\n`;
 
     carrinhoItens.forEach((item) => {
         const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
