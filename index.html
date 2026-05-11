@@ -562,7 +562,8 @@ function fecharZoom() {
     zoomImg.style.display = "none";
 }
 
-const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia, GO, Brasil";
+// ENDEREÇO DA LOJA SIMPLIFICADO PARA O MAPA
+const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia, GO";
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
 );
@@ -794,12 +795,16 @@ function toggleCarrinho() {
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
+// FUNÇÃO DE BUSCA MELHORADA COM TIMEOUT E USER-AGENT VARIÁVEL
 async function buscarCoordenadas(query) {
     try {
+        // Adiciona um número aleatório no User-Agent para evitar bloqueio por 429
+        const randomId = Math.floor(Math.random() * 10000);
         const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-            { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+            { headers: { 'User-Agent': `PastelariaPremiumApp_${randomId}` } }
         );
+        if (!response.ok) return null;
         const data = await response.json();
         return data.length > 0 ? data[0] : null;
     } catch (e) {
@@ -812,9 +817,9 @@ async function calcularDistanciaAutomatica(enderecoCliente) {
     let limpo = enderecoCliente.replace(/qd\s*\d+/gi, '').replace(/lt\s*\d+/gi, '').replace(/casa\s*\d+/gi, '').trim();
     
     const tentativas = [
-        `${enderecoCliente}, Aparecida de Goiânia, GO, Brasil`,
-        `${limpo}, Aparecida de Goiânia, GO, Brasil`,
-        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`
+        `${enderecoCliente}, Aparecida de Goiânia, GO`,
+        `${limpo}, Aparecida de Goiânia, GO`,
+        `Jardim Luz, Aparecida de Goiânia, GO`
     ];
 
     for (let query of tentativas) {
@@ -823,7 +828,7 @@ async function calcularDistanciaAutomatica(enderecoCliente) {
             const dist = await calcularRotaComCoordenadas(coords);
             if (dist !== null) return dist;
         }
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 600)); // Espera um pouco mais entre tentativas
     }
     
     taxaManual = true;
@@ -837,7 +842,7 @@ async function calcularRotaComCoordenadas(dadosDestino) {
     try {
         const rota = await fetch(
             `https://router.project-osrm.org/route/v1/driving/${coordsLoja.lon},${coordsLoja.lat};${dadosDestino.lon},${dadosDestino.lat}?overview=false`,
-            { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+            { headers: { 'User-Agent': 'PastelariaPremiumApp_Router' } }
         );
         const dadosRota = await rota.json();
         if (dadosRota.routes && dadosRota.routes.length > 0) {
@@ -865,7 +870,6 @@ async function enviar() {
     btnFinalizar.innerText = "CALCULANDO...";
     btnFinalizar.disabled = true;
 
-    // Executa o cálculo
     const distancia = await calcularDistanciaAutomatica(endereco);
     distanciaAtual = distancia;
     atualizarCarrinho();
@@ -891,7 +895,6 @@ async function enviar() {
     mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
     mensagem += `Total: R$ ${formatarPreco(total)}`;
 
-    // CORREÇÃO PARA WHATSAPP: Usa location.href para evitar bloqueio de pop-up
     const url = `https://api.whatsapp.com/send?phone=556291484278&text=${encodeURIComponent(mensagem)}`;
     
     btnFinalizar.innerText = "FINALIZAR PEDIDO";
