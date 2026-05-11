@@ -19,8 +19,6 @@
     box-sizing: border-box;
 }
 
-
-
 .box,
 .item,
 .modal-box {
@@ -338,12 +336,11 @@ textarea {
     font-size: 12px;
 }
 
-/* SUBSTITUA PELO BLOCO ABAIXO */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow-x: hidden; /* Evita que a tela "balance" para os lados */
+    overflow-x: hidden;
 }
 
 body {
@@ -351,7 +348,6 @@ body {
     background: var(--fundo);
     color: var(--texto);
 }
-
 
 .container {
     max-width: 600px;
@@ -364,19 +360,19 @@ header {
     width: 100%;
     margin: 0;
     padding: 0;
-    line-height: 0; /* Garante que a imagem encoste nos campos de baixo */
-    background: #f5fffb; /* Cor de fundo igual ao resto do site para suavizar */
+    line-height: 0;
+    background: #f5fffb;
 }
 
 .logo {
     width: 100%;
-    max-height: 210px; /* 👈 limita a altura */
-    object-fit: cover; /* 👈 corta proporcionalmente */
+    max-height: 210px;
+    object-fit: cover;
     display: block;
 }
 
 .titulo-loja {
-    display: none;  /* Garante que o texto antigo não apareça */
+    display: none;
 }
 
 </style>
@@ -498,7 +494,6 @@ const cardapio = {
 "Pastéis Doces":[
 ["Sabor do paraíso (banana, mussarela e canela)",10,"sabordoparaiso.png"],
 ["Romeu e Julieta (goiabada com mussarela)",10,"romeuejulieta.png"],
-["Doce encantado (doce de leite com mussarela)",12,"doceencantado.png"],
 ["Nutella com banana",15,"sonhodenutellacombanana.png"],
 ["Nutella com morango",15,"sonhodenutellacommorango.png"]
 ],
@@ -537,9 +532,9 @@ const adicionaisPasteis = [["Mussarela",3],["Azeitona",2],["Bacon",3],["Calabres
 const adicionaisCrepes = [["Tomate",2],["Alface",2],["Provolone",5],["Calabresa",3],["Palmito",5],["Cebola",3]];
 const saboresRefri = {
     "Refrigerante lata": ["Coca-Cola", "Coca-Cola Zero", "Guaraná"],
-    "Refrigerante 600mL": ["Coca-Cola", "Coca-Cola Zero"],
-    "Refrigerante 1L": ["Coca-Cola", "Coca-Cola Zero"],
-    "Refrigerante 1,5L": ["Guaraná Antarctica"]
+    "Refrigerante 600 ml": ["Coca-Cola", "Coca-Cola Zero"],
+    "Refrigerante 1 L": ["Coca-Cola", "Coca-Cola Zero"],
+    "Refrigerante 1,5 L": ["Guaraná Antarctica"]
 };
 
 const abas = document.getElementById("abas");
@@ -557,6 +552,7 @@ const modalObs = document.getElementById("modalObs");
 const modalQtdValor = document.getElementById("modalQtdValor");
 const zoomImg = document.getElementById("zoomImg");
 const imgGrande = document.getElementById("imgGrande");
+
 function abrirZoom(src) {
     imgGrande.src = src;
     zoomImg.style.display = "flex";
@@ -565,6 +561,7 @@ function abrirZoom(src) {
 function fecharZoom() {
     zoomImg.style.display = "none";
 }
+
 const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia - GO";
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
@@ -587,11 +584,9 @@ function obterListaExtras() {
     if (categoriaAtual.includes("Pastéis")) {
         return adicionaisPasteis;
     }
-
     if (categoriaAtual === "Crepe Francês") {
         return adicionaisCrepes;
     }
-
     return [];
 }
 
@@ -606,21 +601,12 @@ function trocar(cat) {
     renderAbas();
     renderLista();
 }
+
 function renderLista() {
     let aviso = "";
-
-    // 👇 AQUI É A REGRA DOS PASTÉIS DOCES
     if (categoriaAtual === "Pastéis Doces") {
         aviso = `
-            <div style="
-                margin-bottom:10px;
-                padding:10px;
-                background:#fff3cd;
-                color:#856404;
-                border-radius:8px;
-                font-size:14px;
-                font-weight:bold;
-            ">
+            <div style="margin-bottom:10px; padding:10px; background:#fff3cd; color:#856404; border-radius:8px; font-size:14px; font-weight:bold;">
                 📏 Todos os pastéis doces possuem tamanho padrão de 15cm
             </div>
         `;
@@ -628,7 +614,6 @@ function renderLista() {
 
     lista.innerHTML = aviso + cardapio[categoriaAtual].map((produto) => {
         const imagem = produto[2] ? `./IMG/${produto[2]}` : placeholderImagem;
-
         return `
             <div class="item">
                 <div class="item-linha">
@@ -636,13 +621,11 @@ function renderLista() {
                          class="img-prod ${categoriaAtual === 'Bebidas' ? 'bebida' : ''}"
                          onclick="abrirZoom(this.src)" 
                          onerror="this.src='${placeholderImagem}'">
-
                     <div>
                         <b>${produto[0]}</b><br>
                         <span class="preco">R$ ${formatarPreco(produto[1])}</span>
                     </div>
                 </div>
-
                 <div class="ctrl">
                     <button class="btn-add" type="button" onclick="abrirModal(this)">
                         Adicionar
@@ -652,6 +635,7 @@ function renderLista() {
         `;
     }).join("");
 }
+
 function abrirModal(botao) {
     itemAtual = botao.closest(".item");
     const nome = itemAtual.querySelector("b").innerText;
@@ -678,36 +662,25 @@ function abrirModal(botao) {
         `).join("");
     }
 
-   // BEBIDAS (SUCO OU REFRIGERANTE)
-modalSabores.innerHTML = "";
-
-// SUCOS
-if (nome.toLowerCase().includes("suco")) {
-    modalSabores.innerHTML = `
-        <b>Sabor:</b><br>
-        <label><input type="radio" name="sabor" value="Laranja"> Laranja</label><br>
-        <label><input type="radio" name="sabor" value="Maracuja"> Maracuja</label>
-    `;
-}
-
-// REFRIGERANTES
-else {
-    for (let tipo in saboresRefri) {
-        if (nome.includes(tipo)) {
-            modalSabores.innerHTML = `
-                <b>Escolha o refrigerante:</b><br>
-                ${saboresRefri[tipo].map(s => `
-                    <label>
-                        <input type="radio" name="sabor" value="${s}">
-                        ${s}
-                    </label><br>
-                `).join("")}
-            `;
-            break; // IMPORTANTE
+    if (nome.toLowerCase().includes("suco")) {
+        modalSabores.innerHTML = `
+            <b>Sabor:</b><br>
+            <label><input type="radio" name="sabor" value="Laranja"> Laranja</label><br>
+            <label><input type="radio" name="sabor" value="Maracuja"> Maracuja</label>
+        `;
+    } else {
+        for (let tipo in saboresRefri) {
+            if (nome.includes(tipo)) {
+                modalSabores.innerHTML = `
+                    <b>Escolha o refrigerante:</b><br>
+                    ${saboresRefri[tipo].map(s => `
+                        <label><input type="radio" name="sabor" value="${s}"> ${s}</label><br>
+                    `).join("")}
+                `;
+                break;
+            }
         }
     }
-}
-
     modal.style.display = "flex";
 }
 
@@ -724,24 +697,15 @@ function fecharModal() {
 
 function alterarQtdModal(delta) {
     quantidadeAtual += delta;
-
-    if (quantidadeAtual < 1) {
-        quantidadeAtual = 1;
-    }
-
+    if (quantidadeAtual < 1) quantidadeAtual = 1;
     modalQtdValor.innerText = quantidadeAtual;
 }
 
 function alterarExtra(botao, delta) {
     const nome = botao.dataset.nome;
     const quantidade = botao.parentElement.querySelector(".qtd-extra");
-
     extrasSelecionados[nome] = (extrasSelecionados[nome] || 0) + delta;
-
-    if (extrasSelecionados[nome] < 0) {
-        extrasSelecionados[nome] = 0;
-    }
-
+    if (extrasSelecionados[nome] < 0) extrasSelecionados[nome] = 0;
     quantidade.innerText = extrasSelecionados[nome];
 }
 
@@ -762,256 +726,136 @@ function calcularSubtotalCarrinho() {
 }
 
 function calcularTaxaEntrega(subtotal, distancia) {
-    if (Number.isNaN(distancia) || distancia < 0) {
+    if (distancia === null || Number.isNaN(distancia) || distancia < 0) {
         return 0;
     }
-
     if (distancia <= 3) {
-        return subtotal > 30 ? 0 : TAXA_ATE_3KM;
+        return subtotal > 30 ? 0 : 5; // Taxa padrão de 5 reais se for abaixo de 30 reais
     }
-
-    if (distancia <= 5) {
-        return 15;
-    }
-
-    if (distancia <= 8) {
-        return 22;
-    }
-
-    if (distancia <= 10) {
-        return 25;
-    }
-
+    if (distancia <= 5) return 15;
+    if (distancia <= 8) return 22;
+    if (distancia <= 10) return 25;
     return 25 + ((distancia - 10) * 1.5);
 }
 
 function confirmarItem() {
-    if (!itemAtual) {
-        return;
-    }
-
+    if (!itemAtual) return;
     const nome = itemAtual.querySelector("b").innerText;
-    const precoTexto = itemAtual.querySelector(".preco").innerText;
-    const preco = Number(precoTexto.replace("R$", "").replace(".", "").replace(",", ".").trim());
-    const listaExtras = obterListaExtras();
+    const preco = parseFloat(itemAtual.querySelector(".preco").innerText.replace("R$ ", "").replace(",", "."));
+    const saborRadio = document.querySelector('input[name="sabor"]:checked');
+    const sabor = saborRadio ? saborRadio.value : "";
+    const obs = modalObs.value.trim();
     const extras = [];
     let valorExtras = 0;
+    const listaExtras = obterListaExtras();
 
-    Object.keys(extrasSelecionados).forEach((nomeExtra) => {
+    for (let nomeExtra in extrasSelecionados) {
         const qtd = extrasSelecionados[nomeExtra];
         if (qtd > 0) {
-            extras.push(`${nomeExtra} x${qtd}`);
-            const precoExtra = listaExtras.find((extra) => extra[0] === nomeExtra)?.[1] || 0;
-            valorExtras += precoExtra * qtd;
+            const infoExtra = listaExtras.find(e => e[0] === nomeExtra);
+            extras.push(`${nomeExtra} (x${qtd})`);
+            valorExtras += infoExtra[1] * qtd;
         }
-    });
-
-    const saborSelecionado = document.querySelector("#modalSabores input:checked");
-    const sabor = saborSelecionado ? saborSelecionado.value : "";
-
-    if ((nome.toLowerCase().includes("suco") || nome.toLowerCase().includes("refrigerante")) && !sabor) {
-    alert("Escolha o tipo da bebida.");
-    return;
-}
-
-    const novoItem = {
-        nome,
-        preco,
-        extras,
-        sabor,
-        obs: modalObs.value.trim(),
-        valorExtras,
-        qtd: quantidadeAtual
-    };
-
-    const itemExistente = encontrarItemExistente(novoItem);
-
-    if (itemExistente) {
-        itemExistente.qtd += quantidadeAtual;
-    } else {
-        carrinhoItens.push(novoItem);
     }
+
+    const novoItem = { nome, preco, sabor, obs, extras, valorExtras, qtd: quantidadeAtual };
+    const existente = encontrarItemExistente(novoItem);
+    if (existente) existente.qtd += quantidadeAtual;
+    else carrinhoItens.push(novoItem);
 
     fecharModal();
     atualizarCarrinho();
-
-    if (carrinhoItens.length > 0) {
-        carrinho.style.display = "block";
-    }
 }
 
-function atualizarCarrinho() {
-    let subtotal = 0;
-
-    listaCarrinho.innerHTML = carrinhoItens.map((item, indice) => {
-        const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
-        subtotal += subtotalItem;
-
-        return `
-            <div class="carrinho-item">
-                <strong>${item.nome} x${item.qtd}</strong>
-                ${item.sabor ? `<span>Sabor: ${item.sabor}</span>` : ""}
-                ${item.extras.length ? `<span>Extras: ${item.extras.join(", ")}</span>` : ""}
-                ${item.obs ? `<span>Obs: ${item.obs}</span>` : ""}
-                <span>Subtotal: R$ ${formatarPreco(subtotalItem)}</span>
-                <button class="btn-remover" type="button" onclick="removerItem(${indice})">Remover</button>
-            </div>
-        `;
-    }).join("");
-
-    // ✅ AGORA SIM: usa subtotal correto + distanciaAtual
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
-    const total = subtotal + taxaEntrega;
-
-    qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
-
-    totalCarrinho.innerHTML = `
-        <div>Subtotal: R$ ${formatarPreco(subtotal)}</div>
-        <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
-        <div>Total: R$ ${formatarPreco(total)}</div>
-    `;
-
-    footer.style.display = carrinhoItens.length > 0 ? "block" : "none";
-
-    if (carrinhoItens.length === 0) {
-        listaCarrinho.innerHTML = "<p>Seu carrinho está vazio.</p>";
-        totalCarrinho.innerText = "Total: R$ 0,00";
-        carrinho.style.display = "none";
-    }
-}
-
-function removerItem(indice) {
-    carrinhoItens.splice(indice, 1);
+function removerItem(index) {
+    carrinhoItens.splice(index, 1);
     atualizarCarrinho();
 }
 
-function toggleCarrinho() {
-    if (!carrinhoItens.length) {
-        return;
-    }
+function atualizarCarrinho() {
+    listaCarrinho.innerHTML = carrinhoItens.map((item, index) => `
+        <div class="carrinho-item">
+            <strong>${item.nome} x${item.qtd}</strong>
+            ${item.sabor ? `<span>Sabor: ${item.sabor}</span>` : ""}
+            ${item.extras.length ? `<span>Extras: ${item.extras.join(", ")}</span>` : ""}
+            ${item.obs ? `<span>Obs: ${item.obs}</span>` : ""}
+            <span>R$ ${formatarPreco((item.preco + item.valorExtras) * item.qtd)}</span>
+            <button class="btn-remover" onclick="removerItem(${index})">Remover</button>
+        </div>
+    `).join("");
 
+    const subtotal = calcularSubtotalCarrinho();
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
+    const total = subtotal + taxaEntrega;
+
+    totalCarrinho.innerHTML = `
+        Subtotal: R$ ${formatarPreco(subtotal)}<br>
+        Taxa de entrega: ${distanciaAtual > 0 ? `R$ ${formatarPreco(taxaEntrega)}` : "Calculando..."}<br>
+        <strong>Total: R$ ${formatarPreco(total)}</strong>
+    `;
+
+    qtdCarrinho.innerText = carrinhoItens.reduce((t, i) => t + i.qtd, 0);
+    footer.style.display = carrinhoItens.length ? "block" : "none";
+}
+
+function toggleCarrinho() {
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
-
 async function calcularDistanciaAutomatica(enderecoCliente) {
     try {
-        // 🔧 1. MELHORA O ENDEREÇO AUTOMATICAMENTE
         let enderecoMelhorado = enderecoCliente;
-        
-        // Adiciona "Brasil" se não tiver
-        if (!enderecoCliente.toUpperCase().includes("BRASIL")) {
-            enderecoMelhorado = enderecoCliente + ", Brasil";
-        }
-        
-        // Remove "CEP" e deixa só o número se necessário
+        if (!enderecoCliente.toUpperCase().includes("BRASIL")) enderecoMelhorado += ", Brasil";
         enderecoMelhorado = enderecoMelhorado.replace(/CEP\s*/i, '');
         
-        console.log("Buscando endereço:", enderecoMelhorado);
-        
-        // ⏱️ 2. ADICIONA TIMEOUT E DELAY ENTRE REQUISIÇÕES
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
-        
+        await new Promise(resolve => setTimeout(resolve, 1000));
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
         
-        // 🌐 3. TENTA COM user-agent VÁLIDO (importante!)
         const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoMelhorado)}&limit=1&addressdetails=1`,
-            {
-                signal: controller.signal,
-                headers: {
-                    'User-Agent': 'PastelariaPremium/1.0 (contato@pastelariapremium.com)' // ⚠️ MUDE PARA SEU EMAIL
-                }
-            }
+            { signal: controller.signal, headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
         );
-        
         clearTimeout(timeoutId);
         
-        // 🚫 4. TRATA ERRO 429 (muitas requisições)
         if (response.status === 429) {
-            alert("Muitas tentativas. Aguarde 10 segundos e tente novamente.");
+            alert("Muitas tentativas. Aguarde 10 segundos.");
             return null;
         }
         
         const dadosDestino = await response.json();
-        
         if (!dadosDestino.length) {
-            // 🔄 5. TENTA APENAS COM CIDADE E BAIRRO (MAIS SIMPLES)
-            console.log("Endereço completo não encontrado, tentando busca simplificada...");
             const buscaSimplificada = "Jardim Luz, Aparecida de Goiânia, GO, Brasil";
             const responseFallback = await fetch(
                 `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(buscaSimplificada)}&limit=1`,
-                {
-                    headers: { 'User-Agent': 'PastelariaPremium/1.0' }
-                }
+                { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
             );
             const dadosFallback = await responseFallback.json();
-            
-            if (!dadosFallback.length) {
-                alert(`❌ Endereço não encontrado no mapa.\n\nEndereço informado: ${enderecoCliente}\n\n💡 Dica: tente um endereço mais próximo, como uma rua principal próxima.`);
-                return null;
-            }
-            
-            alert(`⚠️ Endereço exato não encontrado. Usando localização aproximada (${dadosFallback[0].display_name}) para calcular a distância.`);
+            if (!dadosFallback.length) return null;
             return await calcularRotaComCoordenadas(dadosFallback[0]);
         }
-        
         return await calcularRotaComCoordenadas(dadosDestino[0]);
-        
     } catch (erro) {
-        console.error("Erro detalhado:", erro);
-        
-        if (erro.name === 'AbortError') {
-            alert("⏰ A solicitação demorou muito. Verifique sua conexão com a internet.");
-        } else if (erro.message.includes('Failed to fetch')) {
-            alert("🌐 Erro de conexão. Verifique se está online e tente novamente.");
-        } else {
-            alert("❌ Erro ao calcular distância. Tente novamente em alguns segundos.");
-        }
         return null;
     }
 }
 
-// Função auxiliar para calcular rota a partir de coordenadas
 async function calcularRotaComCoordenadas(dadosDestino) {
-    const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia - GO";
-    
-    // Busca coordenadas da loja
     const geoOrigem = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ENDERECO_LOJA)}&limit=1`,
         { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
     );
     const dadosOrigem = await geoOrigem.json();
+    if (!dadosOrigem.length) return null;
     
-    if (!dadosOrigem.length) {
-        alert("Não foi possível localizar o endereço da loja.");
-        return null;
-    }
-    
-    const origemLat = dadosOrigem[0].lat;
-    const origemLon = dadosOrigem[0].lon;
-    const destinoLat = dadosDestino.lat;
-    const destinoLon = dadosDestino.lon;
-    
-    // Calcula distância via rota
     const rota = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${origemLon},${origemLat};${destinoLon},${destinoLat}?overview=false`,
+        `https://router.project-osrm.org/route/v1/driving/${dadosOrigem[0].lon},${dadosOrigem[0].lat};${dadosDestino.lon},${dadosDestino.lat}?overview=false`,
         { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
     );
-    
     const dadosRota = await rota.json();
-    
-    if (!dadosRota.routes || !dadosRota.routes.length) {
-        alert("Não foi possível calcular a rota.");
-        return null;
-    }
-    
-    const distanciaKm = dadosRota.routes[0].distance / 1000;
-    console.log(`Distância calculada: ${distanciaKm.toFixed(2)} km`);
-    return distanciaKm;
+    if (!dadosRota.routes || !dadosRota.routes.length) return null;
+    return dadosRota.routes[0].distance / 1000;
 }
-
 
 async function enviar() {
     const nome = document.getElementById("nome").value.trim();
@@ -1022,33 +866,29 @@ async function enviar() {
         alert("Preencha nome, telefone e endereço.");
         return;
     }
-
     if (!carrinhoItens.length) {
-        alert("Adicione pelo menos um item no carrinho.");
+        alert("Adicione itens no carrinho.");
         return;
     }
 
     const distancia = await calcularDistanciaAutomatica(endereco);
+    if (distancia === null) {
+        alert("Não foi possível calcular a distância. Verifique o endereço.");
+        return;
+    }
     distanciaAtual = distancia;
     atualizarCarrinho();
-
-    if (distancia === null) {
-    return;
-}
 
     const subtotal = calcularSubtotalCarrinho();
     const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
     const total = subtotal + taxaEntrega;
 
     let mensagem = "*PEDIDO*\n";
-    mensagem += `Cliente: ${nome}\n`;
-    mensagem += `Telefone: ${tel}\n`;
-    mensagem += `Endereço: ${endereco}\n\n`;
-    mensagem += `Distância: ${formatarPreco(distancia)} km\n\n`;
+    mensagem += `Cliente: ${nome}\nTelefone: ${tel}\nEndereço: ${endereco}\n`;
+    mensagem += `Distância: ${distancia.toFixed(2)} km\n\n`;
 
     carrinhoItens.forEach((item) => {
         const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
-
         mensagem += `- ${item.nome} x${item.qtd}\n`;
         if (item.sabor) mensagem += `  Sabor: ${item.sabor}\n`;
         if (item.extras.length) mensagem += `  Extras: ${item.extras.join(", ")}\n`;
@@ -1060,11 +900,8 @@ async function enviar() {
     mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
     mensagem += `Total: R$ ${formatarPreco(total)}`;
 
-    const url = `https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`;
-    window.open(url, "_blank");
+    window.open(`https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`, "_blank");
 }
-
-
 
 renderAbas();
 renderLista();
