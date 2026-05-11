@@ -895,70 +895,121 @@ function toggleCarrinho() {
 
 
 async function calcularDistanciaAutomatica(enderecoCliente) {
-
     try {
-
-        // ENDEREÇO DA LOJA
-        const origem = encodeURIComponent(ENDERECO_LOJA);
-
-        // ENDEREÇO CLIENTE
-        const destino = encodeURIComponent(enderecoCliente);
-
-        // PEGA COORDENADAS DA LOJA
-        const geoOrigem = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${origem}`
+        // 🔧 1. MELHORA O ENDEREÇO AUTOMATICAMENTE
+        let enderecoMelhorado = enderecoCliente;
+        
+        // Adiciona "Brasil" se não tiver
+        if (!enderecoCliente.toUpperCase().includes("BRASIL")) {
+            enderecoMelhorado = enderecoCliente + ", Brasil";
+        }
+        
+        // Remove "CEP" e deixa só o número se necessário
+        enderecoMelhorado = enderecoMelhorado.replace(/CEP\s*/i, '');
+        
+        console.log("Buscando endereço:", enderecoMelhorado);
+        
+        // ⏱️ 2. ADICIONA TIMEOUT E DELAY ENTRE REQUISIÇÕES
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Espera 1 segundo
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        
+        // 🌐 3. TENTA COM user-agent VÁLIDO (importante!)
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoMelhorado)}&limit=1&addressdetails=1`,
+            {
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'PastelariaPremium/1.0 (contato@pastelariapremium.com)' // ⚠️ MUDE PARA SEU EMAIL
+                }
+            }
         );
-
-        const dadosOrigem = await geoOrigem.json();
-
-        if (!dadosOrigem.length) {
-            alert("Não foi possível localizar o endereço da loja.");
+        
+        clearTimeout(timeoutId);
+        
+        // 🚫 4. TRATA ERRO 429 (muitas requisições)
+        if (response.status === 429) {
+            alert("Muitas tentativas. Aguarde 10 segundos e tente novamente.");
             return null;
         }
-
-        // PEGA COORDENADAS DO CLIENTE
-        const geoDestino = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${destino}`
-        );
-
-        const dadosDestino = await geoDestino.json();
-
+        
+        const dadosDestino = await response.json();
+        
         if (!dadosDestino.length) {
-            alert("Endereço do cliente inválido.");
-            return null;
+            // 🔄 5. TENTA APENAS COM CIDADE E BAIRRO (MAIS SIMPLES)
+            console.log("Endereço completo não encontrado, tentando busca simplificada...");
+            const buscaSimplificada = "Jardim Luz, Aparecida de Goiânia, GO, Brasil";
+            const responseFallback = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(buscaSimplificada)}&limit=1`,
+                {
+                    headers: { 'User-Agent': 'PastelariaPremium/1.0' }
+                }
+            );
+            const dadosFallback = await responseFallback.json();
+            
+            if (!dadosFallback.length) {
+                alert(`❌ Endereço não encontrado no mapa.\n\nEndereço informado: ${enderecoCliente}\n\n💡 Dica: tente um endereço mais próximo, como uma rua principal próxima.`);
+                return null;
+            }
+            
+            alert(`⚠️ Endereço exato não encontrado. Usando localização aproximada (${dadosFallback[0].display_name}) para calcular a distância.`);
+            return await calcularRotaComCoordenadas(dadosFallback[0]);
         }
-
-        const origemLat = dadosOrigem[0].lat;
-        const origemLon = dadosOrigem[0].lon;
-
-        const destinoLat = dadosDestino[0].lat;
-        const destinoLon = dadosDestino[0].lon;
-
-        // CALCULA DISTÂNCIA VIA ROTA
-        const rota = await fetch(
-            `https://router.project-osrm.org/route/v1/driving/${origemLon},${origemLat};${destinoLon},${destinoLat}?overview=false`
-        );
-
-        const dadosRota = await rota.json();
-
-        if (!dadosRota.routes || !dadosRota.routes.length) {
-            alert("Não foi possível calcular a rota.");
-            return null;
-        }
-
-        // DISTÂNCIA EM KM
-        const distanciaKm = dadosRota.routes[0].distance / 1000;
-
-        return distanciaKm;
-
+        
+        return await calcularRotaComCoordenadas(dadosDestino[0]);
+        
     } catch (erro) {
-
-        console.error(erro);
-
-        alert("Erro ao calcular distância.");
-
+        console.error("Erro detalhado:", erro);
+        
+        if (erro.name === 'AbortError') {
+            alert("⏰ A solicitação demorou muito. Verifique sua conexão com a internet.");
+        } else if (erro.message.includes('Failed to fetch')) {
+            alert("🌐 Erro de conexão. Verifique se está online e tente novamente.");
+        } else {
+            alert("❌ Erro ao calcular distância. Tente novamente em alguns segundos.");
+        }
         return null;
     }
+}
+
+// Função auxiliar para calcular rota a partir de coordenadas
+async function calcularRotaComCoordenadas(dadosDestino) {
+    const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia - GO";
+    
+    // Busca coordenadas da loja
+    const geoOrigem = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ENDERECO_LOJA)}&limit=1`,
+        { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+    );
+    const dadosOrigem = await geoOrigem.json();
+    
+    if (!dadosOrigem.length) {
+        alert("Não foi possível localizar o endereço da loja.");
+        return null;
+    }
+    
+    const origemLat = dadosOrigem[0].lat;
+    const origemLon = dadosOrigem[0].lon;
+    const destinoLat = dadosDestino.lat;
+    const destinoLon = dadosDestino.lon;
+    
+    // Calcula distância via rota
+    const rota = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${origemLon},${origemLat};${destinoLon},${destinoLat}?overview=false`,
+        { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+    );
+    
+    const dadosRota = await rota.json();
+    
+    if (!dadosRota.routes || !dadosRota.routes.length) {
+        alert("Não foi possível calcular a rota.");
+        return null;
+    }
+    
+    const distanciaKm = dadosRota.routes[0].distance / 1000;
+    console.log(`Distância calculada: ${distanciaKm.toFixed(2)} km`);
+    return distanciaKm;
 }
 
 
