@@ -894,38 +894,75 @@ function toggleCarrinho() {
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
+
 async function calcularDistanciaAutomatica(enderecoCliente) {
-    return new Promise((resolve, reject) => {
-        const service = new google.maps.DistanceMatrixService();
 
-        service.getDistanceMatrix(
-            {
-                origins: [ENDERECO_LOJA],
-                destinations: [enderecoCliente],
-                travelMode: "DRIVING",
-                unitSystem: google.maps.UnitSystem.METRIC
-            },
-            (response, status) => {
-                if (status !== "OK") {
-                    alert("Erro ao calcular distância.");
-                    resolve(null);
-                    return;
-                }
+    try {
 
-                const resultado = response.rows[0].elements[0];
+        // ENDEREÇO DA LOJA
+        const origem = encodeURIComponent(ENDERECO_LOJA);
 
-                if (resultado.status !== "OK") {
-                    alert("Endereço inválido.");
-                    resolve(null);
-                    return;
-                }
+        // ENDEREÇO CLIENTE
+        const destino = encodeURIComponent(enderecoCliente);
 
-                const distanciaKm = resultado.distance.value / 1000;
-                resolve(distanciaKm);
-            }
+        // PEGA COORDENADAS DA LOJA
+        const geoOrigem = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${origem}`
         );
-    });
+
+        const dadosOrigem = await geoOrigem.json();
+
+        if (!dadosOrigem.length) {
+            alert("Não foi possível localizar o endereço da loja.");
+            return null;
+        }
+
+        // PEGA COORDENADAS DO CLIENTE
+        const geoDestino = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${destino}`
+        );
+
+        const dadosDestino = await geoDestino.json();
+
+        if (!dadosDestino.length) {
+            alert("Endereço do cliente inválido.");
+            return null;
+        }
+
+        const origemLat = dadosOrigem[0].lat;
+        const origemLon = dadosOrigem[0].lon;
+
+        const destinoLat = dadosDestino[0].lat;
+        const destinoLon = dadosDestino[0].lon;
+
+        // CALCULA DISTÂNCIA VIA ROTA
+        const rota = await fetch(
+            `https://router.project-osrm.org/route/v1/driving/${origemLon},${origemLat};${destinoLon},${destinoLat}?overview=false`
+        );
+
+        const dadosRota = await rota.json();
+
+        if (!dadosRota.routes || !dadosRota.routes.length) {
+            alert("Não foi possível calcular a rota.");
+            return null;
+        }
+
+        // DISTÂNCIA EM KM
+        const distanciaKm = dadosRota.routes[0].distance / 1000;
+
+        return distanciaKm;
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert("Erro ao calcular distância.");
+
+        return null;
+    }
 }
+
+
 async function enviar() {
     const nome = document.getElementById("nome").value.trim();
     const tel = document.getElementById("tel").value.trim();
@@ -983,6 +1020,5 @@ renderAbas();
 renderLista();
 atualizarCarrinho();
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQZYBj5pGx8WqZNYKDJ4djTyQ0l9qcVik"></script>
 </body>
 </html>
