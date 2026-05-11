@@ -487,7 +487,7 @@ const cardapio = {
 ["Pastel goiano (frango, milho, guariroba e creme de pequi)",20,"goiano.png"],
 ["Pastel cachorrão (salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20,"cachorrao.png"],
 ["Pastel de pernil 1 (pernil suíno, mussarela e barbecue)",20,"pernilsuinocommussarelaebarbecue.png"],
-["Pastel de pernil 2 (pernil suíno com catupiry)",20,"pernilsuinocomcatupiry.png"],
+["Pastel de pernil 2 (pernil suíno with catupiry)",20,"pernilsuinocomcatupiry.png"],
 ["Pastel premium (frango, carne, presunto, mussarela, tomate, milho, azeitona, cream cheese e bacon)",28,"premium.png"]
 ],
 
@@ -562,12 +562,10 @@ function fecharZoom() {
     zoomImg.style.display = "none";
 }
 
-const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia - GO";
+const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia, GO, Brasil";
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
 );
-
-const TAXA_ATE_3KM = 0;
 
 let categoriaAtual = "Pastéis Tradicionais";
 let carrinhoItens = [];
@@ -581,12 +579,8 @@ function formatarPreco(valor) {
 }
 
 function obterListaExtras() {
-    if (categoriaAtual.includes("Pastéis")) {
-        return adicionaisPasteis;
-    }
-    if (categoriaAtual === "Crepe Francês") {
-        return adicionaisCrepes;
-    }
+    if (categoriaAtual.includes("Pastéis")) return adicionaisPasteis;
+    if (categoriaAtual === "Crepe Francês") return adicionaisCrepes;
     return [];
 }
 
@@ -726,12 +720,8 @@ function calcularSubtotalCarrinho() {
 }
 
 function calcularTaxaEntrega(subtotal, distancia) {
-    if (distancia === null || Number.isNaN(distancia) || distancia < 0) {
-        return 0;
-    }
-    if (distancia <= 3) {
-        return subtotal > 30 ? 0 : 5; // Taxa padrão de 5 reais se for abaixo de 30 reais
-    }
+    if (distancia === null || distancia === undefined || distancia < 0) return 0;
+    if (distancia <= 3) return subtotal >= 30 ? 0 : 5;
     if (distancia <= 5) return 15;
     if (distancia <= 8) return 22;
     if (distancia <= 10) return 25;
@@ -802,59 +792,56 @@ function toggleCarrinho() {
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
-async function calcularDistanciaAutomatica(enderecoCliente) {
+async function buscarCoordenadas(query) {
     try {
-        let enderecoMelhorado = enderecoCliente;
-        if (!enderecoCliente.toUpperCase().includes("BRASIL")) enderecoMelhorado += ", Brasil";
-        enderecoMelhorado = enderecoMelhorado.replace(/CEP\s*/i, '');
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-        
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(enderecoMelhorado)}&limit=1&addressdetails=1`,
-            { signal: controller.signal, headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+            { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
         );
-        clearTimeout(timeoutId);
-        
-        if (response.status === 429) {
-            alert("Muitas tentativas. Aguarde 10 segundos.");
-            return null;
-        }
-        
-        const dadosDestino = await response.json();
-        if (!dadosDestino.length) {
-            const buscaSimplificada = "Jardim Luz, Aparecida de Goiânia, GO, Brasil";
-            const responseFallback = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(buscaSimplificada)}&limit=1`,
-                { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
-            );
-            const dadosFallback = await responseFallback.json();
-            if (!dadosFallback.length) return null;
-            return await calcularRotaComCoordenadas(dadosFallback[0]);
-        }
-        return await calcularRotaComCoordenadas(dadosDestino[0]);
-    } catch (erro) {
+        const data = await response.json();
+        return data.length > 0 ? data[0] : null;
+    } catch (e) {
         return null;
     }
 }
 
-async function calcularRotaComCoordenadas(dadosDestino) {
-    const geoOrigem = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ENDERECO_LOJA)}&limit=1`,
-        { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
-    );
-    const dadosOrigem = await geoOrigem.json();
-    if (!dadosOrigem.length) return null;
+async function calcularDistanciaAutomatica(enderecoCliente) {
+    // 1. Limpeza do endereço (remove qd, lt, etc que confundem o mapa)
+    let limpo = enderecoCliente.replace(/qd\s*\d+/gi, '').replace(/lt\s*\d+/gi, '').replace(/casa\s*\d+/gi, '').trim();
     
-    const rota = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${dadosOrigem[0].lon},${dadosOrigem[0].lat};${dadosDestino.lon},${dadosDestino.lat}?overview=false`,
-        { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
-    );
-    const dadosRota = await rota.json();
-    if (!dadosRota.routes || !dadosRota.routes.length) return null;
-    return dadosRota.routes[0].distance / 1000;
+    // 2. Tenta várias combinações de busca
+    const tentativas = [
+        `${enderecoCliente}, Aparecida de Goiânia, GO, Brasil`, // Completo
+        `${limpo}, Aparecida de Goiânia, GO, Brasil`,           // Sem quadra/lote
+        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`          // Apenas bairro (último recurso)
+    ];
+
+    for (let query of tentativas) {
+        console.log("Tentando buscar:", query);
+        const coords = await buscarCoordenadas(query);
+        if (coords) {
+            return await calcularRotaComCoordenadas(coords);
+        }
+        await new Promise(r => setTimeout(r, 600)); // Delay para evitar bloqueio da API
+    }
+    return null;
+}
+
+async function calcularRotaComCoordenadas(dadosDestino) {
+    const coordsLoja = await buscarCoordenadas(ENDERECO_LOJA);
+    if (!coordsLoja) return null;
+    
+    try {
+        const rota = await fetch(
+            `https://router.project-osrm.org/route/v1/driving/${coordsLoja.lon},${coordsLoja.lat};${dadosDestino.lon},${dadosDestino.lat}?overview=false`,
+            { headers: { 'User-Agent': 'PastelariaPremium/1.0' } }
+        );
+        const dadosRota = await rota.json();
+        if (dadosRota.routes && dadosRota.routes.length > 0) {
+            return dadosRota.routes[0].distance / 1000;
+        }
+    } catch (e) {}
+    return null;
 }
 
 async function enviar() {
@@ -871,11 +858,22 @@ async function enviar() {
         return;
     }
 
+    // Mostra feedback visual
+    const btnFinalizar = document.querySelector(".footer button");
+    const textoOriginal = btnFinalizar.innerText;
+    btnFinalizar.innerText = "CALCULANDO DISTÂNCIA...";
+    btnFinalizar.disabled = true;
+
     const distancia = await calcularDistanciaAutomatica(endereco);
+    
+    btnFinalizar.innerText = textoOriginal;
+    btnFinalizar.disabled = false;
+
     if (distancia === null) {
-        alert("Não foi possível calcular a distância. Verifique o endereço.");
+        alert("Não conseguimos localizar seu endereço no mapa. Por favor, tente digitar de forma mais simples (Ex: Rua Nome, Bairro).");
         return;
     }
+
     distanciaAtual = distancia;
     atualizarCarrinho();
 
