@@ -405,7 +405,7 @@ header {
 </div>
 
 <div class="footer">
-<button type="button" onclick="enviar()">FINALIZAR PEDIDO</button>
+<button type="button" id="btnFinalizar" onclick="enviar()">FINALIZAR PEDIDO</button>
 </div>
 
 <div id="modal">
@@ -721,7 +721,7 @@ function calcularSubtotalCarrinho() {
 }
 
 function calcularTaxaEntrega(subtotal, distancia) {
-    if (taxaManual) return 7; // Taxa fixa de segurança se o mapa falhar
+    if (taxaManual) return 7; 
     if (distancia === null || distancia === undefined || distancia <= 0) return 0;
     if (distancia <= 3) return subtotal >= 30 ? 0 : 5;
     if (distancia <= 5) return 15;
@@ -809,15 +809,12 @@ async function buscarCoordenadas(query) {
 
 async function calcularDistanciaAutomatica(enderecoCliente) {
     taxaManual = false;
-    // 1. Limpeza do endereço
     let limpo = enderecoCliente.replace(/qd\s*\d+/gi, '').replace(/lt\s*\d+/gi, '').replace(/casa\s*\d+/gi, '').trim();
     
-    // 2. Tenta várias combinações de busca
     const tentativas = [
         `${enderecoCliente}, Aparecida de Goiânia, GO, Brasil`,
         `${limpo}, Aparecida de Goiânia, GO, Brasil`,
-        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`,
-        `Aparecida de Goiânia, GO, Brasil`
+        `Jardim Luz, Aparecida de Goiânia, GO, Brasil`
     ];
 
     for (let query of tentativas) {
@@ -826,10 +823,9 @@ async function calcularDistanciaAutomatica(enderecoCliente) {
             const dist = await calcularRotaComCoordenadas(coords);
             if (dist !== null) return dist;
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 400));
     }
     
-    // Se tudo falhar, ativa taxa manual de segurança
     taxaManual = true;
     return 0;
 }
@@ -865,16 +861,12 @@ async function enviar() {
         return;
     }
 
-    const btnFinalizar = document.querySelector(".footer button");
-    const textoOriginal = btnFinalizar.innerText;
+    const btnFinalizar = document.getElementById("btnFinalizar");
     btnFinalizar.innerText = "CALCULANDO...";
     btnFinalizar.disabled = true;
 
+    // Executa o cálculo
     const distancia = await calcularDistanciaAutomatica(endereco);
-    
-    btnFinalizar.innerText = textoOriginal;
-    btnFinalizar.disabled = false;
-
     distanciaAtual = distancia;
     atualizarCarrinho();
 
@@ -899,7 +891,13 @@ async function enviar() {
     mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
     mensagem += `Total: R$ ${formatarPreco(total)}`;
 
-    window.open(`https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`, "_blank");
+    // CORREÇÃO PARA WHATSAPP: Usa location.href para evitar bloqueio de pop-up
+    const url = `https://api.whatsapp.com/send?phone=556291484278&text=${encodeURIComponent(mensagem)}`;
+    
+    btnFinalizar.innerText = "FINALIZAR PEDIDO";
+    btnFinalizar.disabled = false;
+
+    window.location.href = url;
 }
 
 renderAbas();
