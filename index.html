@@ -185,6 +185,7 @@ textarea {
     background: #fff;
     padding: 10px;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+    z-index: 998;
 }
 
 .footer button {
@@ -374,7 +375,6 @@ header {
 .titulo-loja {
     display: none;
 }
-
 </style>
 </head>
 
@@ -405,7 +405,7 @@ header {
 </div>
 
 <div class="footer">
-<button type="button" id="btnFinalizar" onclick="enviar()">FINALIZAR PEDIDO</button>
+<button type="button" onclick="enviar()">FINALIZAR PEDIDO</button>
 </div>
 
 <div id="modal">
@@ -474,7 +474,7 @@ const cardapio = {
 ["Mussarela com calabresa",16,"mussarelacomcalabresa.png"],
 ["Mussarela com bacon",18,"mussarelaebacon.png"],
 ["Mussarela com palmito",18,"mussarelaepalmito.png"],
-["Queijo minas with catupiry",16,"queijominasecatupiry.png"]
+["Queijo minas com catupiry",16,"queijominasecatupiry.png"]
 ],
 
 "Pastéis Especiais":[
@@ -487,13 +487,14 @@ const cardapio = {
 ["Pastel goiano (frango, milho, guariroba e creme de pequi)",20,"goiano.png"],
 ["Pastel cachorrão (salsicha, milho, mussarela, mostarda, ketchup, bacon e batata palha)",20,"cachorrao.png"],
 ["Pastel de pernil 1 (pernil suíno, mussarela e barbecue)",20,"pernilsuinocommussarelaebarbecue.png"],
-["Pastel de pernil 2 (pernil suíno with catupiry)",20,"pernilsuinocomcatupiry.png"],
+["Pastel de pernil 2 (pernil suíno com catupiry)",20,"pernilsuinocomcatupiry.png"],
 ["Pastel premium (frango, carne, presunto, mussarela, tomate, milho, azeitona, cream cheese e bacon)",28,"premium.png"]
 ],
 
 "Pastéis Doces":[
 ["Sabor do paraíso (banana, mussarela e canela)",10,"sabordoparaiso.png"],
 ["Romeu e Julieta (goiabada com mussarela)",10,"romeuejulieta.png"],
+["Doce encantado (doce de leite com mussarela)",12,"doceencantado.png"],
 ["Nutella com banana",15,"sonhodenutellacombanana.png"],
 ["Nutella com morango",15,"sonhodenutellacommorango.png"]
 ],
@@ -553,6 +554,8 @@ const modalQtdValor = document.getElementById("modalQtdValor");
 const zoomImg = document.getElementById("zoomImg");
 const imgGrande = document.getElementById("imgGrande");
 
+let taxaManual = false;
+
 function abrirZoom(src) {
     imgGrande.src = src;
     zoomImg.style.display = "flex";
@@ -562,8 +565,7 @@ function fecharZoom() {
     zoomImg.style.display = "none";
 }
 
-// ENDEREÇO DA LOJA SIMPLIFICADO PARA O MAPA
-const ENDERECO_LOJA = "Avenida Dona Maria Cardoso, Aparecida de Goiânia, GO";
+const ENDERECO_LOJA = "Av. Dona Maria Cardoso, Quadra 30a - Lote 8 - Jardim Luz, Aparecida de Goiânia - GO, 74915-175";
 const placeholderImagem = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="100%" height="100%" fill="#e0f7f1"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="12" fill="#159d7a">Sem imagem</text></svg>'
 );
@@ -574,15 +576,18 @@ let extrasSelecionados = {};
 let itemAtual = null;
 let quantidadeAtual = 1;
 let distanciaAtual = 0;
-let taxaManual = false;
 
 function formatarPreco(valor) {
     return valor.toFixed(2).replace(".", ",");
 }
 
 function obterListaExtras() {
-    if (categoriaAtual.includes("Pastéis")) return adicionaisPasteis;
-    if (categoriaAtual === "Crepe Francês") return adicionaisCrepes;
+    if (categoriaAtual.includes("Pastéis")) {
+        return adicionaisPasteis;
+    }
+    if (categoriaAtual === "Crepe Francês") {
+        return adicionaisCrepes;
+    }
     return [];
 }
 
@@ -607,7 +612,6 @@ function renderLista() {
             </div>
         `;
     }
-
     lista.innerHTML = aviso + cardapio[categoriaAtual].map((produto) => {
         const imagem = produto[2] ? `./IMG/${produto[2]}` : placeholderImagem;
         return `
@@ -636,7 +640,6 @@ function abrirModal(botao) {
     itemAtual = botao.closest(".item");
     const nome = itemAtual.querySelector("b").innerText;
     const listaExtras = obterListaExtras();
-
     extrasSelecionados = {};
     quantidadeAtual = 1;
     modalQtdValor.innerText = quantidadeAtual;
@@ -644,7 +647,6 @@ function abrirModal(botao) {
     modalExtras.innerHTML = "";
     modalSabores.innerHTML = "";
     modalObs.value = "";
-
     if (listaExtras.length) {
         modalExtras.innerHTML = "<b>Adicionais:</b><br>" + listaExtras.map((extra) => `
             <div class="extra-item">
@@ -657,7 +659,7 @@ function abrirModal(botao) {
             </div>
         `).join("");
     }
-
+    modalSabores.innerHTML = "";
     if (nome.toLowerCase().includes("suco")) {
         modalSabores.innerHTML = `
             <b>Sabor:</b><br>
@@ -722,190 +724,216 @@ function calcularSubtotalCarrinho() {
 }
 
 function calcularTaxaEntrega(subtotal, distancia) {
-    if (taxaManual) return 7; 
+    const DISTANCIA_MAXIMA = 10;
+    
+    if (taxaManual) return 7;
     if (distancia === null || distancia === undefined || distancia <= 0) return 0;
-    if (distancia <= 3) return subtotal >= 30 ? 0 : 5;
-    if (distancia <= 5) return 15;
-    if (distancia <= 8) return 22;
-    if (distancia <= 10) return 25;
-    return 25 + ((distancia - 10) * 1.5);
+    
+    // 1. MAIOR QUE 10KM - NÃO ENTREGA
+    if (distancia > DISTANCIA_MAXIMA) {
+        return "FORA_AREA";
+    }
+    
+    // 2. ATÉ 3KM
+    if (distancia <= 3) {
+        if (subtotal >= 30) {
+            return 0; // Grátis
+        } else {
+            return "PEDIDO_MINIMO"; // Só retirada
+        }
+    }
+    
+    // 3. 3KM A 5KM
+    if (distancia <= 5) {
+        return 15;
+    }
+    
+    // 4. 5KM A 8KM
+    if (distancia <= 8) {
+        return 22;
+    }
+    
+    // 5. 8KM A 10KM
+    if (distancia <= 10) {
+        return 25;
+    }
+    
+    return "FORA_AREA";
 }
 
 function confirmarItem() {
     if (!itemAtual) return;
     const nome = itemAtual.querySelector("b").innerText;
-    const preco = parseFloat(itemAtual.querySelector(".preco").innerText.replace("R$ ", "").replace(",", "."));
-    const saborRadio = document.querySelector('input[name="sabor"]:checked');
-    const sabor = saborRadio ? saborRadio.value : "";
-    const obs = modalObs.value.trim();
+    const precoTexto = itemAtual.querySelector(".preco").innerText;
+    const preco = Number(precoTexto.replace("R$", "").replace(".", "").replace(",", ".").trim());
+    const listaExtras = obterListaExtras();
     const extras = [];
     let valorExtras = 0;
-    const listaExtras = obterListaExtras();
-
-    for (let nomeExtra in extrasSelecionados) {
+    Object.keys(extrasSelecionados).forEach((nomeExtra) => {
         const qtd = extrasSelecionados[nomeExtra];
         if (qtd > 0) {
-            const infoExtra = listaExtras.find(e => e[0] === nomeExtra);
-            extras.push(`${nomeExtra} (x${qtd})`);
-            valorExtras += infoExtra[1] * qtd;
+            extras.push(`${nomeExtra} x${qtd}`);
+            const precoExtra = listaExtras.find((extra) => extra[0] === nomeExtra)?.[1] || 0;
+            valorExtras += precoExtra * qtd;
         }
+    });
+    const saborSelecionado = document.querySelector("#modalSabores input:checked");
+    const sabor = saborSelecionado ? saborSelecionado.value : "";
+    if ((nome.toLowerCase().includes("suco") || nome.toLowerCase().includes("refrigerante")) && !sabor) {
+        alert("Escolha o sabor da bebida.");
+        return;
     }
-
-    const novoItem = { nome, preco, sabor, obs, extras, valorExtras, qtd: quantidadeAtual };
-    const existente = encontrarItemExistente(novoItem);
-    if (existente) existente.qtd += quantidadeAtual;
-    else carrinhoItens.push(novoItem);
-
+    const novoItem = {
+        nome, preco, extras, sabor, obs: modalObs.value.trim(), valorExtras, qtd: quantidadeAtual
+    };
+    const itemExistente = encontrarItemExistente(novoItem);
+    if (itemExistente) {
+        itemExistente.qtd += quantidadeAtual;
+    } else {
+        carrinhoItens.push(novoItem);
+    }
     fecharModal();
     atualizarCarrinho();
+    if (carrinhoItens.length > 0) {
+        carrinho.style.display = "block";
+    }
 }
 
-function removerItem(index) {
-    carrinhoItens.splice(index, 1);
+function removerItem(indice) {
+    carrinhoItens.splice(indice, 1);
     atualizarCarrinho();
 }
 
 function atualizarCarrinho() {
-    listaCarrinho.innerHTML = carrinhoItens.map((item, index) => `
-        <div class="carrinho-item">
-            <strong>${item.nome} x${item.qtd}</strong>
-            ${item.sabor ? `<span>Sabor: ${item.sabor}</span>` : ""}
-            ${item.extras.length ? `<span>Extras: ${item.extras.join(", ")}</span>` : ""}
-            ${item.obs ? `<span>Obs: ${item.obs}</span>` : ""}
-            <span>R$ ${formatarPreco((item.preco + item.valorExtras) * item.qtd)}</span>
-            <button class="btn-remover" onclick="removerItem(${index})">Remover</button>
-        </div>
-    `).join("");
-
     const subtotal = calcularSubtotalCarrinho();
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
-    const total = subtotal + taxaEntrega;
-
+    const taxaResultado = calcularTaxaEntrega(subtotal, distanciaAtual);
+    
+    let taxaTexto = "";
+    let totalTexto = "";
+    let podeEntregar = true;
+    
+    if (taxaResultado === "FORA_AREA") {
+        taxaTexto = "⚠️ Endereço fora da área de entrega (>10km)";
+        totalTexto = "⚠️ Não é possível entregar";
+        podeEntregar = false;
+    } else if (taxaResultado === "PEDIDO_MINIMO") {
+        taxaTexto = "⚠️ Pedido mínimo para entrega: R$ 30,00";
+        totalTexto = "⚠️ Disponível apenas para retirada na loja";
+        podeEntregar = false;
+    } else {
+        const taxaEntrega = taxaResultado;
+        const total = subtotal + taxaEntrega;
+        taxaTexto = `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}`;
+        totalTexto = `<strong>Total: R$ ${formatarPreco(total)}</strong>`;
+    }
+    
+    listaCarrinho.innerHTML = carrinhoItens.map((item, index) => {
+        const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
+        return `
+            <div class="carrinho-item">
+                <strong>${item.nome} x${item.qtd}</strong>
+                ${item.sabor ? `<span>Sabor: ${item.sabor}</span>` : ""}
+                ${item.extras.length ? `<span>Extras: ${item.extras.join(", ")}</span>` : ""}
+                ${item.obs ? `<span>Obs: ${item.obs}</span>` : ""}
+                <span>R$ ${formatarPreco(subtotalItem)}</span>
+                <button class="btn-remover" onclick="removerItem(${index})">Remover</button>
+            </div>
+        `;
+    }).join("");
+    
     totalCarrinho.innerHTML = `
         Subtotal: R$ ${formatarPreco(subtotal)}<br>
-        Taxa de entrega: ${taxaManual ? `R$ ${formatarPreco(taxaEntrega)} (Taxa Fixa)` : (distanciaAtual > 0 ? `R$ ${formatarPreco(taxaEntrega)}` : "Calculando...")}<br>
-        <strong>Total: R$ ${formatarPreco(total)}</strong>
+        ${taxaTexto}<br>
+        ${totalTexto}
     `;
-
+    
     qtdCarrinho.innerText = carrinhoItens.reduce((t, i) => t + i.qtd, 0);
-    footer.style.display = carrinhoItens.length ? "block" : "none";
+    
+    const footerBtn = footer.querySelector("button");
+    if (carrinhoItens.length && podeEntregar) {
+        footer.style.display = "block";
+        footerBtn.innerText = "FINALIZAR PEDIDO";
+        footerBtn.style.background = "#25d366";
+        footerBtn.style.color = "#fff";
+        footerBtn.disabled = false;
+    } else if (carrinhoItens.length && !podeEntregar) {
+        footer.style.display = "block";
+        if (taxaResultado === "FORA_AREA") {
+            footerBtn.innerText = "❌ FORA DA ÁREA DE ENTREGA";
+            footerBtn.style.background = "#dc3545";
+        } else if (taxaResultado === "PEDIDO_MINIMO") {
+            footerBtn.innerText = "⚠️ PEDIDO MÍNIMO: R$ 30,00";
+            footerBtn.style.background = "#ffc107";
+            footerBtn.style.color = "#000";
+        }
+        footerBtn.disabled = true;
+    } else {
+        footer.style.display = "none";
+    }
 }
 
 function toggleCarrinho() {
+    if (!carrinhoItens.length) return;
     carrinho.style.display = carrinho.style.display === "block" ? "none" : "block";
 }
 
-// FUNÇÃO DE BUSCA MELHORADA COM TIMEOUT E USER-AGENT VARIÁVEL
-async function buscarCoordenadas(query) {
-    try {
-        // Adiciona um número aleatório no User-Agent para evitar bloqueio por 429
-        const randomId = Math.floor(Math.random() * 10000);
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-            { headers: { 'User-Agent': `PastelariaPremiumApp_${randomId}` } }
-        );
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data.length > 0 ? data[0] : null;
-    } catch (e) {
-        return null;
-    }
-}
-
 async function calcularDistanciaAutomatica(enderecoCliente) {
-    taxaManual = false;
-    let limpo = enderecoCliente.replace(/qd\s*\d+/gi, '').replace(/lt\s*\d+/gi, '').replace(/casa\s*\d+/gi, '').trim();
-    
-    const tentativas = [
-        `${enderecoCliente}, Aparecida de Goiânia, GO`,
-        `${limpo}, Aparecida de Goiânia, GO`,
-        `Jardim Luz, Aparecida de Goiânia, GO`
-    ];
-
-    for (let query of tentativas) {
-        const coords = await buscarCoordenadas(query);
-        if (coords) {
-            const dist = await calcularRotaComCoordenadas(coords);
-            if (dist !== null) return dist;
-        }
-        await new Promise(r => setTimeout(r, 600)); // Espera um pouco mais entre tentativas
-    }
-    
-    taxaManual = true;
-    return 0;
-}
-
-async function calcularRotaComCoordenadas(dadosDestino) {
-    const coordsLoja = await buscarCoordenadas(ENDERECO_LOJA);
-    if (!coordsLoja) return null;
-    
-    try {
-        const rota = await fetch(
-            `https://router.project-osrm.org/route/v1/driving/${coordsLoja.lon},${coordsLoja.lat};${dadosDestino.lon},${dadosDestino.lat}?overview=false`,
-            { headers: { 'User-Agent': 'PastelariaPremiumApp_Router' } }
+    return new Promise((resolve) => {
+        const service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix(
+            {
+                origins: [ENDERECO_LOJA],
+                destinations: [enderecoCliente],
+                travelMode: "DRIVING",
+                unitSystem: google.maps.UnitSystem.METRIC
+            },
+            (response, status) => {
+                if (status !== "OK") {
+                    alert("Erro ao calcular distância. Tente novamente.");
+                    resolve(null);
+                    return;
+                }
+                const resultado = response.rows[0].elements[0];
+                if (resultado.status !== "OK") {
+                    alert("Endereço inválido ou não encontrado.");
+                    resolve(null);
+                    return;
+                }
+                const distanciaKm = resultado.distance.value / 1000;
+                resolve(distanciaKm);
+            }
         );
-        const dadosRota = await rota.json();
-        if (dadosRota.routes && dadosRota.routes.length > 0) {
-            return dadosRota.routes[0].distance / 1000;
-        }
-    } catch (e) {}
-    return null;
+    });
 }
 
 async function enviar() {
     const nome = document.getElementById("nome").value.trim();
     const tel = document.getElementById("tel").value.trim();
     const endereco = document.getElementById("endereco").value.trim();
-
+    
     if (!nome || !tel || !endereco) {
         alert("Preencha nome, telefone e endereço.");
         return;
     }
     if (!carrinhoItens.length) {
-        alert("Adicione itens no carrinho.");
+        alert("Adicione pelo menos um item no carrinho.");
         return;
     }
-
-    const btnFinalizar = document.getElementById("btnFinalizar");
+    
+    const btnFinalizar = footer.querySelector("button");
     btnFinalizar.innerText = "CALCULANDO...";
     btnFinalizar.disabled = true;
-
+    
     const distancia = await calcularDistanciaAutomatica(endereco);
     distanciaAtual = distancia;
-    atualizarCarrinho();
-
-    const subtotal = calcularSubtotalCarrinho();
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
-    const total = subtotal + taxaEntrega;
-
-    let mensagem = "*PEDIDO*\n";
-    mensagem += `Cliente: ${nome}\nTelefone: ${tel}\nEndereço: ${endereco}\n`;
-    mensagem += taxaManual ? `Taxa: Fixa (Endereço não mapeado)\n\n` : `Distância: ${distancia.toFixed(2)} km\n\n`;
-
-    carrinhoItens.forEach((item) => {
-        const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
-        mensagem += `- ${item.nome} x${item.qtd}\n`;
-        if (item.sabor) mensagem += `  Sabor: ${item.sabor}\n`;
-        if (item.extras.length) mensagem += `  Extras: ${item.extras.join(", ")}\n`;
-        if (item.obs) mensagem += `  Obs: ${item.obs}\n`;
-        mensagem += `  Subtotal: R$ ${formatarPreco(subtotalItem)}\n\n`;
-    });
-
-    mensagem += `Subtotal: R$ ${formatarPreco(subtotal)}\n`;
-    mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
-    mensagem += `Total: R$ ${formatarPreco(total)}`;
-
-    const url = `https://api.whatsapp.com/send?phone=556291484278&text=${encodeURIComponent(mensagem)}`;
     
-    btnFinalizar.innerText = "FINALIZAR PEDIDO";
-    btnFinalizar.disabled = false;
-
-    window.location.href = url;
-}
-
-renderAbas();
-renderLista();
-atualizarCarrinho();
-</script>
-</body>
-</html>
+    if (distancia === null) {
+        btnFinalizar.innerText = "FINALIZAR PEDIDO";
+        btnFinalizar.disabled = false;
+        return;
+    }
+    
+    const subtotal = calcularSubtotalCarrinho();
+    const taxaResultado = calcularTaxaEntrega(subtotal, distanciaAtual);
+    
+    if (taxaResultado
