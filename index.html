@@ -765,7 +765,6 @@ function calcularSubtotalCarrinho() {
 function calcularTaxaEntrega(subtotal, distancia) {
     const DISTANCIA_MAXIMA = 10;
     
-    if (taxaManual) return 7;
     if (distancia === null || distancia === undefined || distancia <= 0) return 0;
     
     // 1. MAIOR QUE 10KM - NÃO ENTREGA
@@ -874,16 +873,44 @@ function atualizarCarrinho() {
         `;
     }).join("");
 
-    // ✅ AGORA SIM: usa subtotal correto + distanciaAtual
     const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
-    const total = subtotal + taxaEntrega;
 
     qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
 
+    let htmlTaxa = "";
+    let total = subtotal;
+
+    // FORA DA ÁREA
+    if (taxaEntrega === "FORA_AREA") {
+        htmlTaxa = `
+            <div style="color:red;font-weight:bold;">
+                ❌ Não entregamos acima de 10km
+            </div>
+        `;
+    }
+
+    // PEDIDO MÍNIMO
+    else if (taxaEntrega === "PEDIDO_MINIMO") {
+        htmlTaxa = `
+            <div style="color:#b45309;font-weight:bold;">
+                ⚠️ Pedidos até 3km precisam ter mínimo de R$ 30 para entrega
+            </div>
+        `;
+    }
+
+    // ENTREGA NORMAL
+    else {
+        total += taxaEntrega;
+
+        htmlTaxa = `
+            <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
+            <div><strong>Total: R$ ${formatarPreco(total)}</strong></div>
+        `;
+    }
+
     totalCarrinho.innerHTML = `
         <div>Subtotal: R$ ${formatarPreco(subtotal)}</div>
-        <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
-        <div>Total: R$ ${formatarPreco(total)}</div>
+        ${htmlTaxa}
     `;
 
     footer.style.display = carrinhoItens.length > 0 ? "block" : "none";
@@ -956,15 +983,30 @@ async function enviar() {
     }
 
     const distancia = await calcularDistanciaAutomatica(endereco);
-    distanciaAtual = distancia;
-    atualizarCarrinho();
 
     if (distancia === null) {
-    return;
-}
+        return;
+    }
+
+    distanciaAtual = distancia;
 
     const subtotal = calcularSubtotalCarrinho();
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
+    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+
+    // ❌ FORA DA ÁREA
+    if (taxaEntrega === "FORA_AREA") {
+        alert("Desculpe, não entregamos acima de 10km.");
+        return;
+    }
+
+    // ❌ PEDIDO ABAIXO DO MÍNIMO
+    if (taxaEntrega === "PEDIDO_MINIMO") {
+        alert("Pedidos até 3km precisam ter mínimo de R$ 30 para entrega.");
+        return;
+    }
+
+    atualizarCarrinho();
+
     const total = subtotal + taxaEntrega;
 
     let mensagem = "*PEDIDO*\n";
@@ -977,9 +1019,19 @@ async function enviar() {
         const subtotalItem = (item.preco + item.valorExtras) * item.qtd;
 
         mensagem += `- ${item.nome} x${item.qtd}\n`;
-        if (item.sabor) mensagem += `  Sabor: ${item.sabor}\n`;
-        if (item.extras.length) mensagem += `  Extras: ${item.extras.join(", ")}\n`;
-        if (item.obs) mensagem += `  Obs: ${item.obs}\n`;
+
+        if (item.sabor) {
+            mensagem += `  Sabor: ${item.sabor}\n`;
+        }
+
+        if (item.extras.length) {
+            mensagem += `  Extras: ${item.extras.join(", ")}\n`;
+        }
+
+        if (item.obs) {
+            mensagem += `  Obs: ${item.obs}\n`;
+        }
+
         mensagem += `  Subtotal: R$ ${formatarPreco(subtotalItem)}\n\n`;
     });
 
@@ -988,8 +1040,11 @@ async function enviar() {
     mensagem += `Total: R$ ${formatarPreco(total)}`;
 
     const url = `https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`;
+
     window.open(url, "_blank");
 }
+
+
 
 
 
