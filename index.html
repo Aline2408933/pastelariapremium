@@ -393,7 +393,8 @@ header {
 <div class="box">
 <input id="nome" placeholder="Seu nome">
 <input id="tel" placeholder="Telefone">
-<input id="endereco" placeholder="Endereço de entrega">
+<input id="cep" placeholder="CEP (ex: 74915-175)" maxlength="9">
+<input id="endereco" placeholder="Rua, número, bairro">
     <select id="pagamento">
     <option value="">Forma de pagamento</option>
     <option value="Pix">Pix</option>
@@ -565,6 +566,58 @@ const modalObs = document.getElementById("modalObs");
 const modalQtdValor = document.getElementById("modalQtdValor");
 const zoomImg = document.getElementById("zoomImg");
 const imgGrande = document.getElementById("imgGrande");
+
+    const campoCep = document.getElementById("cep");
+
+// Máscara automática do CEP
+campoCep.addEventListener("input", function () {
+
+    let valor = this.value.replace(/\D/g, "");
+
+    if (valor.length > 5) {
+        valor = valor.slice(0,5) + "-" + valor.slice(5,8);
+    }
+
+    this.value = valor;
+
+});
+
+// Busca endereço pelo CEP
+campoCep.addEventListener("blur", async function(){
+
+    const cep = this.value.replace(/\D/g,"");
+
+    if(cep.length !== 8){
+        return;
+    }
+
+    try{
+
+        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+
+        const dados = await resposta.json();
+
+        if(dados.erro){
+            alert("CEP não encontrado");
+            return;
+        }
+
+       document.getElementById("endereco").value =
+`${dados.logradouro}, ${dados.bairro}, ${dados.localidade} - ${dados.uf}`;
+
+// recalcula automaticamente a distância
+distanciaAtual = await calcularDistanciaAutomatica(
+    document.getElementById("endereco").value
+);
+
+atualizarCarrinho();
+
+    }
+    catch{
+        console.log("Erro ao consultar CEP");
+    }
+
+});
 function abrirZoom(src) {
     imgGrande.src = src;
     zoomImg.style.display = "flex";
@@ -1044,7 +1097,8 @@ async function calcularDistanciaAutomatica(enderecoCliente) {
 async function enviar() {
     const nome = document.getElementById("nome").value.trim();
     const tel = document.getElementById("tel").value.trim();
-    const endereco = document.getElementById("endereco").value.trim();
+    const cep = document.getElementById("cep").value.trim();
+const endereco = document.getElementById("endereco").value.trim();
     const pagamento = document.getElementById("pagamento").value;
 const troco = document.getElementById("troco").value.trim();
 
@@ -1090,7 +1144,8 @@ const troco = document.getElementById("troco").value.trim();
     let mensagem = "*PEDIDO*\n";
     mensagem += `Cliente: ${nome}\n`;
     mensagem += `Telefone: ${tel}\n`;
-    mensagem += `Endereço: ${endereco}\n`;
+    mensagem += `CEP: ${cep}\n`;
+mensagem += `Endereço: ${endereco}\n`;
 mensagem += `Pagamento: ${pagamento}\n`;
 
 if (pagamento === "Dinheiro" && troco){
