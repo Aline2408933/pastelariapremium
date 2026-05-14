@@ -34,6 +34,7 @@
 }
 
 .box input,
+.box select,
 textarea {
     width: 100%;
     padding: 10px;
@@ -393,6 +394,17 @@ header {
 <input id="nome" placeholder="Seu nome">
 <input id="tel" placeholder="Telefone">
 <input id="endereco" placeholder="Endereço de entrega">
+    <select id="pagamento">
+    <option value="">Forma de pagamento</option>
+    <option value="Pix">Pix</option>
+    <option value="Dinheiro">Dinheiro</option>
+    <option value="Cartão de Débito">Cartão de Débito</option>
+    <option value="Cartão de Crédito">Cartão de Crédito</option>
+</select>
+
+<div id="trocoDiv" style="display:none;margin-top:10px;">
+    <input id="troco" placeholder="Troco para quanto?">
+</div>
 </div>
 
 <div id="abas"></div>
@@ -611,6 +623,18 @@ function obterListaExtras() {
 
     return [];
 }
+    document.getElementById("pagamento").addEventListener("change", function(){
+
+    const trocoDiv = document.getElementById("trocoDiv");
+
+    if(this.value === "Dinheiro"){
+        trocoDiv.style.display = "block";
+    }else{
+        trocoDiv.style.display = "none";
+        document.getElementById("troco").value = "";
+    }
+
+});
 
 function renderAbas() {
     abas.innerHTML = Object.keys(cardapio).map((cat) => `
@@ -999,9 +1023,11 @@ async function enviar() {
     const nome = document.getElementById("nome").value.trim();
     const tel = document.getElementById("tel").value.trim();
     const endereco = document.getElementById("endereco").value.trim();
+    const pagamento = document.getElementById("pagamento").value;
+const troco = document.getElementById("troco").value.trim();
 
-    if (!nome || !tel || !endereco) {
-        alert("Preencha nome, telefone e endereço.");
+    if (!nome || !tel || !endereco || !pagamento) {
+        alert("Preencha nome, telefone e endereço e forma de pagamento.");
         return;
     }
 
@@ -1042,7 +1068,14 @@ async function enviar() {
     let mensagem = "*PEDIDO*\n";
     mensagem += `Cliente: ${nome}\n`;
     mensagem += `Telefone: ${tel}\n`;
-    mensagem += `Endereço: ${endereco}\n\n`;
+    mensagem += `Endereço: ${endereco}\n`;
+mensagem += `Pagamento: ${pagamento}\n`;
+
+if (pagamento === "Dinheiro" && troco){
+    mensagem += `Troco para: R$ ${troco}\n`;
+}
+
+mensagem += "\n";
     mensagem += `Distância: ${formatarPreco(distancia)} km\n\n`;
 
     carrinhoItens.forEach((item) => {
