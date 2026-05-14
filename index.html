@@ -893,7 +893,9 @@ function atualizarCarrinho() {
 
     qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
     
-let htmlTaxa = `
+
+
+    let htmlTaxa = `
 <div style="color:#666">
 📍 Digite o endereço para calcular a entrega
 </div>
@@ -901,33 +903,38 @@ let htmlTaxa = `
 
 let total = subtotal;
 
-    // FORA DA ÁREA
-    if (taxaEntrega === "FORA_AREA") {
-        htmlTaxa = `
-            <div style="color:red;font-weight:bold;">
-                ❌ Não entregamos acima de 10km
-            </div>
-        `;
-    }
+if (!distanciaAtual || distanciaAtual <= 0) {
+    htmlTaxa = `
+    <div style="color:#666">
+    📍 Digite o endereço para calcular a entrega
+    </div>
+    `;
+}
 
-    // PEDIDO MÍNIMO
-    else if (taxaEntrega === "PEDIDO_MINIMO") {
-        htmlTaxa = `
-            <div style="color:#b45309;font-weight:bold;">
-                ⚠️ Pedidos até 3km precisam ter mínimo de R$ 30 para entrega
-            </div>
-        `;
-    }
+else if (taxaEntrega === "FORA_AREA") {
+    htmlTaxa = `
+        <div style="color:red;font-weight:bold;">
+            ❌ Não entregamos acima de 10km
+        </div>
+    `;
+}
 
-    // ENTREGA NORMAL
-   else if (taxaEntrega !== null) {
+else if (taxaEntrega === "PEDIDO_MINIMO") {
+    htmlTaxa = `
+        <div style="color:#b45309;font-weight:bold;">
+            ⚠️ Pedidos até 3km precisam ter mínimo de R$30
+        </div>
+    `;
+}
+
+else {
     total += taxaEntrega;
 
-        htmlTaxa = `
-            <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
-            <div><strong>Total: R$ ${formatarPreco(total)}</strong></div>
-        `;
-    }
+    htmlTaxa = `
+        <div>🚚 Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
+        <div><strong>Total: R$ ${formatarPreco(total)}</strong></div>
+    `;
+}
 
     totalCarrinho.innerHTML = `
         <div>Subtotal: R$ ${formatarPreco(subtotal)}</div>
@@ -1066,7 +1073,6 @@ async function enviar() {
 
 window.location.href = url;
 
-    window.open(url, "_blank");
 }
 
 
