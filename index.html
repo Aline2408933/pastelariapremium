@@ -1035,7 +1035,9 @@ async function enviar() {
     mensagem += `Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}\n`;
     mensagem += `Total: R$ ${formatarPreco(total)}`;
 
-    const url = `https://wa.me/556291484278?text=${encodeURIComponent(mensagem)}`;
+    const url = `https://api.whatsapp.com/send?phone=556291484278&text=${encodeURIComponent(mensagem)}`;
+
+window.location.href = url;
 
     window.open(url, "_blank");
 }
