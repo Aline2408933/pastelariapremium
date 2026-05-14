@@ -576,6 +576,26 @@ let itemAtual = null;
 let quantidadeAtual = 1;
 let distanciaAtual = 0;
 
+    document.getElementById("endereco").addEventListener(
+    "blur",
+    async function () {
+
+        const endereco = this.value.trim();
+
+        if (!endereco) return;
+
+        try {
+            distanciaAtual = await calcularDistanciaAutomatica(endereco);
+
+            atualizarCarrinho();
+
+        } catch (erro) {
+            console.log("Erro ao calcular distância:", erro);
+        }
+
+    }
+);
+
 function formatarPreco(valor) {
     return valor.toFixed(2).replace(".", ",");
 }
@@ -872,9 +892,14 @@ function atualizarCarrinho() {
     const taxaEntrega = calcularTaxaEntrega(subtotal, distanciaAtual);
 
     qtdCarrinho.innerText = carrinhoItens.reduce((acc, item) => acc + item.qtd, 0);
+    
+let htmlTaxa = `
+<div style="color:#666">
+📍 Digite o endereço para calcular a entrega
+</div>
+`;
 
-    let htmlTaxa = "";
-    let total = subtotal;
+let total = subtotal;
 
     // FORA DA ÁREA
     if (taxaEntrega === "FORA_AREA") {
@@ -895,8 +920,8 @@ function atualizarCarrinho() {
     }
 
     // ENTREGA NORMAL
-    else {
-        total += taxaEntrega;
+   else if (taxaEntrega !== null) {
+    total += taxaEntrega;
 
         htmlTaxa = `
             <div>Taxa de entrega: R$ ${formatarPreco(taxaEntrega)}</div>
@@ -987,7 +1012,9 @@ async function enviar() {
     distanciaAtual = distancia;
 
     const subtotal = calcularSubtotalCarrinho();
-    const taxaEntrega = calcularTaxaEntrega(subtotal, distancia);
+    const taxaEntrega = distanciaAtual > 0
+    ? calcularTaxaEntrega(subtotal, distanciaAtual)
+    : null;
 
     // ❌ FORA DA ÁREA
     if (taxaEntrega === "FORA_AREA") {
