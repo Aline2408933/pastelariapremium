@@ -394,7 +394,12 @@ header {
 <input id="nome" placeholder="Seu nome">
 <input id="tel" placeholder="Telefone">
 <input id="cep" placeholder="CEP (ex: 74915-175)" maxlength="9">
-<input id="endereco" placeholder="Rua, número, bairro">
+<input id="endereco" placeholder="Rua e bairro" readonly>
+
+<div style="display:flex; gap:10px;">
+    <input id="numero" placeholder="Número">
+    <input id="complemento" placeholder="Complemento (apto, bloco, referência)">
+</div>
     <select id="pagamento">
     <option value="">Forma de pagamento</option>
     <option value="Pix">Pix</option>
@@ -1099,11 +1104,13 @@ async function enviar() {
     const tel = document.getElementById("tel").value.trim();
     const cep = document.getElementById("cep").value.trim();
 const endereco = document.getElementById("endereco").value.trim();
+const numero = document.getElementById("numero").value.trim();
+const complemento = document.getElementById("complemento").value.trim();
     const pagamento = document.getElementById("pagamento").value;
 const troco = document.getElementById("troco").value.trim();
 
-    if (!nome || !tel || !endereco || !pagamento) {
-        alert("Preencha nome, telefone e endereço e forma de pagamento.");
+  if (!nome || !tel || !cep || !endereco || !numero || !pagamento) {
+        alert("Preencha nome, telefone, endereço, número e forma de pagamento.");
         return;
     }
 
@@ -1111,8 +1118,9 @@ const troco = document.getElementById("troco").value.trim();
         alert("Adicione pelo menos um item no carrinho.");
         return;
     }
+const enderecoCompleto = `${endereco}, ${numero}${complemento ? ", " + complemento : ""}`;
 
-    const distancia = await calcularDistanciaAutomatica(endereco);
+const distancia = await calcularDistanciaAutomatica(enderecoCompleto);
 
     if (distancia === null) {
         return;
@@ -1144,8 +1152,11 @@ const troco = document.getElementById("troco").value.trim();
     let mensagem = "*PEDIDO*\n";
     mensagem += `Cliente: ${nome}\n`;
     mensagem += `Telefone: ${tel}\n`;
-    mensagem += `CEP: ${cep}\n`;
-mensagem += `Endereço: ${endereco}\n`;
+mensagem += `Endereço: ${endereco}, Nº ${numero}\n`;
+
+if(complemento){
+    mensagem += `Complemento: ${complemento}\n`;
+}
 mensagem += `Pagamento: ${pagamento}\n`;
 
 if (pagamento === "Dinheiro" && troco){
