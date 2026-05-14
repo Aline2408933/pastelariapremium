@@ -588,25 +588,47 @@ let itemAtual = null;
 let quantidadeAtual = 1;
 let distanciaAtual = 0;
 
-    document.getElementById("endereco").addEventListener(
-    "blur",
-    async function () {
+ const campoEndereco = document.getElementById("endereco");
 
-        const endereco = this.value.trim();
+campoEndereco.addEventListener("input", function () {
+    
+    const endereco = this.value.trim();
 
-        if (!endereco) return;
-
-        try {
-            distanciaAtual = await calcularDistanciaAutomatica(endereco);
-
-            atualizarCarrinho();
-
-        } catch (erro) {
-            console.log("Erro ao calcular distância:", erro);
-        }
-
+    // Se apagar o endereço, limpa a distância
+    if (!endereco) {
+        distanciaAtual = 0;
+        atualizarCarrinho();
+        return;
     }
-);
+
+});
+
+campoEndereco.addEventListener("blur", async function () {
+
+    const endereco = this.value.trim();
+
+    if (!endereco){
+        distanciaAtual = 0;
+        atualizarCarrinho();
+        return;
+    }
+
+    try {
+
+        // recalcula sempre que sair do campo
+        distanciaAtual = await calcularDistanciaAutomatica(endereco);
+
+        atualizarCarrinho();
+
+    } catch (erro) {
+
+        console.log("Erro ao calcular distância:", erro);
+
+        distanciaAtual = 0;
+        atualizarCarrinho();
+    }
+
+});
 
 function formatarPreco(valor) {
     return valor.toFixed(2).replace(".", ",");
